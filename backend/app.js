@@ -6,6 +6,6 @@ app.get("/", (req, res) => {
     res.send("Hello!");
 });
 
-app.listen(port, () => {
+app.listen(PORT, () => {
     console.log(`Listening at http://localhost:${PORT}`);
 });
