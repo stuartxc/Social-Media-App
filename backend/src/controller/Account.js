@@ -1,21 +1,17 @@
+const { Pool } = require("pg")
+const DatabaseInstance = require("../database/Database")
 class Account {
   // create a new account
   static async create(req, res, next) {}
 
-  async queryDatabase(queryText) {
-    const client = await pool.connect()
-    try {
-      const res = await client.query(queryText)
-      return res.rows
-    } finally {
-      client.release()
-    }
-  }
-
   // get an account
   static async get(req, res) {
+    const db = DatabaseInstance.getInstance()
+    const id = req.params.userId
+    console.log(id)
     try {
-      const data = await this.queryDatabase("SELECT * FROM test;")
+      const data = await db.queryDb(`SELECT * FROM test WHERE id=${id};`)
+      
       res.json(data)
     } catch (error) {
       console.error(error)
