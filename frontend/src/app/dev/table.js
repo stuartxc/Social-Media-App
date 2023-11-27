@@ -3,7 +3,9 @@
 
 const Tables = async () => {
   const getAllTables = async () => {
-    const data = await fetch("http://localhost:3000/data")
+    const data = await fetch("http://localhost:3000/data", {
+        method: 'GET'
+    })
     const tables = await data.json()
     console.log(tables)
     return tables
