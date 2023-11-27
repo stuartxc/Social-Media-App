@@ -17,6 +17,7 @@ class Server {
     }
 
     init() {
+        this.registerMiddleware();
         this.registerRoutes();
     }
 
@@ -28,6 +29,14 @@ class Server {
         } finally {
             client.release();
         }
+    }
+
+    registerMiddleware() {
+        this.express.use(cors());
+
+        // JSON parser should be before express.raw
+        this.express.use(express.json());
+        this.express.use(express.raw({ type: "application/*", limit: "25mb" }));
     }
 
     registerRoutes() {
