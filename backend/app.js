@@ -26,10 +26,9 @@ app.get("/", (req, res) => {
   res.send("Hello!")
 })
 
-// Example route using the database
 app.get("/data", async (req, res) => {
   try {
-    const data = await queryDatabase("SELECT * FROM test;") // Replace with your query
+    const data = await queryDatabase("SELECT * FROM test;") 
     res.json(data)
   } catch (error) {
     console.error(error)
