@@ -1,7 +1,7 @@
 import Tables from "./table"
 
 const DevPage = () => {
-    return <div className="text-green-500">hello WORLD
+    return <div>hello WORLD
         <Tables/>
       HELLO WORLD
     </div>
