@@ -1,12 +1,12 @@
 const express = require("express");
 const { Pool } = require("pg");
 
-const Authentication = require("../middleware/Authentication");
-const Account = require("../middleware/Account");
-const Comment = require("../middleware/Comment");
-const Post = require("../middleware/Post");
-const Chat = require("../middleware/Chat");
-const Dev = require("../middleware/Dev");
+const Authentication = require("../controller/Authentication");
+const Account = require("../controller/Account");
+const Comment = require("../controller/Comment");
+const Post = require("../controller/Post");
+const Chat = require("../controller/Chat");
+const Dev = require("../controller/Dev");
 
 class Server {
     constructor(port) {
