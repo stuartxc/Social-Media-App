@@ -1,8 +1,7 @@
 // 'use client'
 // import { useEffect, useState } from 'react';
 
-const Tables = async () => {
-  const getAllTables = async () => {
+const getAllTables = async () => {
     const data = await fetch("http://localhost:3000/data", {
         method: 'GET'
     })
@@ -10,6 +9,9 @@ const Tables = async () => {
     console.log(tables)
     return tables
   }
+
+const Tables = async () => {
+  
   const tables = await getAllTables()
   return (
     <div>
