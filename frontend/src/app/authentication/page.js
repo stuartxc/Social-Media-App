@@ -1,10 +1,14 @@
-import Login from "./Login"
+import Login from "./Login";
 
 const Authentication = () => {
-  return <div>hello world
-    <Login/>
-    HELLO WORLD
-  </div>
-}
+    return (
+        <div className="justify-center items-center flex h-screen">
+            <div className="border border-gray-300 p-6 bg-white rounded-md max-w-md mx-auto">
+                <div className="text-lg font-semibold mb-4 text-center">Login</div>
+                <Login />
+            </div>
+        </div>
+    );
+};
 
-export default Authentication
+export default Authentication;

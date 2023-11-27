@@ -1,5 +1,6 @@
 const express = require("express");
 const { Pool } = require("pg");
+const cors = require("cors");
 
 const Authentication = require("../controller/Authentication");
 const Account = require("../controller/Account");
@@ -32,11 +33,11 @@ class Server {
     }
 
     registerMiddleware() {
-        this.express.use(cors());
+        this.app.use(cors());
 
         // JSON parser should be before express.raw
-        this.express.use(express.json());
-        this.express.use(express.raw({ type: "application/*", limit: "25mb" }));
+        this.app.use(express.json());
+        this.app.use(express.raw({ type: "application/*", limit: "25mb" }));
     }
 
     registerRoutes() {
