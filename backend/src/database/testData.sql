@@ -33,13 +33,13 @@ CREATE TABLE Permissions (
 );
 
 CREATE TABLE hasPermissions (
-	user VARCHAR(20),
+	username VARCHAR(20),
 	perms VARCHAR(20) NOT NULL DEFAULT 'normalUser',
-	FOREIGN KEY (user) REFERENCES Account(username)
+	FOREIGN KEY (username) REFERENCES Account(username)
 	ON DELETE CASCADE,
 	FOREIGN KEY (perms) REFERENCES Permissions(type)
 	ON DELETE SET DEFAULT,
-	PRIMARY KEY (user)
+	PRIMARY KEY (username)
 );
 
 CREATE TABLE follow (
@@ -195,7 +195,7 @@ INSERT INTO Permissions(type, cost) VALUES
 ('editor', 5),
 ('viewer', 0);
 
-INSERT INTO hasPermissions(user, perms) VALUES
+INSERT INTO hasPermissions(username, perms) VALUES
 ('user1', 'normalUser'),
 ('user2', 'premiumUser'),
 ('user3', 'admin'),
