@@ -23,15 +23,15 @@ class Server {
         this.registerRoutes();
     }
 
-    async queryDatabase(queryText) {
-        const client = await pool.connect();
-        try {
-            const res = await client.query(queryText);
-            return res.rows;
-        } finally {
-            client.release();
-        }
-    }
+    // async queryDatabase(queryText) {
+    //     const client = await pool.connect();
+    //     try {
+    //         const res = await client.query(queryText);
+    //         return res.rows;
+    //     } finally {
+    //         client.release();
+    //     }
+    // }
 
     registerMiddleware() {
         this.app.use(cors());

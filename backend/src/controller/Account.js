@@ -24,7 +24,7 @@ class Account {
 		const id = req.params.userId;
 		console.log(id);
 		try {
-			const data = await this.db.queryDb(`SELECT * FROM test WHERE id=${id};`);
+			const data = await db.queryDb(`SELECT * FROM account WHERE username='${id}';`);
 
 			res.json(data);
 		} catch (error) {
