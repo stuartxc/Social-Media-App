@@ -15,7 +15,7 @@ const Register = () => {
 	const router = useRouter();
 
 	const tryRegister = async () => {
-		const response = await fetch(REGISTER_URL, {
+		const response = fetch(REGISTER_URL, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -51,6 +51,7 @@ const Register = () => {
 				}, 1000);
 			})
 			.catch((error) => {
+				console.log(error);
 				setErrorMessage(error.statusText);
 			});
 
