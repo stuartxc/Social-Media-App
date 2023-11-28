@@ -54,7 +54,7 @@ CREATE TABLE follow (
 
 CREATE TABLE Login (
 	username VARCHAR(20) PRIMARY KEY,
-	password VARCHAR(20)
+	password VARCHAR(80)
 );
 
 CREATE TABLE validateUser (

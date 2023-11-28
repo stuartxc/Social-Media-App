@@ -1,10 +1,11 @@
+const DatabaseInstance = require("../database/Database");
+const db = DatabaseInstance.getInstance();
 class Authentication {
-    static async login(req, res) {
-        console.log(req.body);
-        res.status(400).send("nahh");
-    }
+	static async login(req, res) {
+		return res.json({ message: "Logged in successfully" });
+	}
 
-    static async logout(req, res) {}
+	static async logout(req, res) {}
 }
 
 module.exports = Authentication;
