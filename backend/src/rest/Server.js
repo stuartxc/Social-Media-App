@@ -10,6 +10,7 @@ const Comment = require("../controller/Comment");
 const Post = require("../controller/Post");
 const Chat = require("../controller/Chat");
 const Dev = require("../controller/Dev");
+const Follow = require("../controller/Follow")
 
 const passportConfig = require("../middleware/PassportConfig");
 
@@ -60,6 +61,15 @@ class Server {
 		this.app.post("/chat/:chatId", Chat.create);
 		this.app.delete("/chat/:messageId", Chat.delete);
 		this.app.get("/chat/:chatId", Chat.get);
+        
+        this.app.get("/followers/:userId", Follow.getFollowers)
+        this.app.get("/following/:userId", Follow.getFollowing)
+        this.app.post("/follow/:follower/:following", Follow.follow)
+        this.app.delete("/unfollow/:follower/:following", Follow.unfollow)
+
+        this.app.post("/post", Post.create);
+        this.app.delete("/post/:postId", Post.delete);
+        this.app.get("/post", Post.get);
 
 		this.app.get("/table/:tableName", Dev.getTable);
 	}
