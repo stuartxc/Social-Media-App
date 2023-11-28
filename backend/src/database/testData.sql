@@ -77,6 +77,7 @@ CREATE TABLE Post (
 	URL VARCHAR(255),
 	caption VARCHAR(280),
 	createdBy VARCHAR(20) NOT NULL,
+	timestamp TIMESTAMP NOT NULL,
 	type INT,
 	FOREIGN KEY (createdBy) REFERENCES Account(username)	
 );
@@ -237,22 +238,22 @@ INSERT INTO Caption(caption, advertisement) VALUES
 ('This is caption 4', FALSE),
 ('This is caption 5', TRUE);
 
-INSERT INTO Post(postID, URL, caption, createdBy, type) VALUES
-(1, 'http://example1.com', 'This is caption 1', 'user1', 0),
-(2, 'http://example2.com', 'This is caption 2', 'user2', 0),
-(3, 'http://example3.com', 'This is caption 3', 'user3', 0),
-(4, 'http://example4.com', 'This is caption 4', 'user4', 0),
-(5, 'http://example5.com', 'This is caption 5', 'user5', 0),
-(6, 'http://example6.com', 'This is caption 1', 'user1', 1),
-(7, 'http://example7.com', 'This is caption 2', 'user2', 1),
-(8, 'http://example8.com', 'This is caption 3', 'user3', 1),
-(9, 'http://example9.com', 'This is caption 4', 'user4', 1),
-(10, 'http://example10.com', 'This is caption 5', 'user5', 1),
-(11, 'http://example11.com', 'This is caption 1', 'user1', 2),
-(12, 'http://example12.com', 'This is caption 2', 'user2', 2),
-(13, 'http://example13.com', 'This is caption 3', 'user3', 2),
-(14, 'http://example14.com', 'This is caption 4', 'user4', 2),
-(15, 'http://example15.com', 'This is caption 5', 'user5', 2);
+INSERT INTO Post(postID, URL, caption, createdBy, timestamp, type) VALUES
+(1, 'http://example1.com', 'This is caption 1', 'user1', '2023-10-10 00:00:00', 0),
+(2, 'http://example2.com', 'This is caption 2', 'user2', '2023-10-10 00:00:00', 0),
+(3, 'http://example3.com', 'This is caption 3', 'user3', '2023-10-10 00:00:00', 0),
+(4, 'http://example4.com', 'This is caption 4', 'user4', '2023-10-10 00:00:00', 0),
+(5, 'http://example5.com', 'This is caption 5', 'user5', '2023-10-10 00:00:00', 0),
+(6, 'http://example6.com', 'This is caption 1', 'user1', '2023-10-10 00:00:00', 1),
+(7, 'http://example7.com', 'This is caption 2', 'user2', '2023-10-10 00:00:00', 1),
+(8, 'http://example8.com', 'This is caption 3', 'user3', '2023-10-10 00:00:00', 1),
+(9, 'http://example9.com', 'This is caption 4', 'user4', '2023-10-10 00:00:00', 1),
+(10, 'http://example10.com', 'This is caption 5', 'user5', '2023-10-10 00:00:00', 1),
+(11, 'http://example11.com', 'This is caption 1', 'user1', '2023-10-10 00:00:00', 2),
+(12, 'http://example12.com', 'This is caption 2', 'user2', '2023-10-10 00:00:00', 2),
+(13, 'http://example13.com', 'This is caption 3', 'user3', '2023-10-10 00:00:00', 2),
+(14, 'http://example14.com', 'This is caption 4', 'user4', '2023-10-10 00:00:00', 2),
+(15, 'http://example15.com', 'This is caption 5', 'user5', '2023-10-10 00:00:00', 2);
 
 INSERT INTO likePost(postID, acc) VALUES
 (1, 'user1'),
