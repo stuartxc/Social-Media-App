@@ -20,7 +20,7 @@ class Account {
 
 			const hashedPassword = await bcrypt.hash(password, 10);
 			const insertLogin = `INSERT INTO login (username, password) VALUES ('${username}', '${hashedPassword}');`;
-			const insertAccount = `INSERT INTO account (email, username, URL) VALUES ('${username}', '${email}', 'http://localhost/user/${username}');`;
+			const insertAccount = `INSERT INTO account (email, username, URL) VALUES ('${email}', '${username}', 'http://localhost/user/${username}');`;
 
 			const dataLogin = await db.queryDb(insertLogin);
 			const dataAccount = await db.queryDb(insertAccount);

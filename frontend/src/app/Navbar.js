@@ -41,16 +41,14 @@ const Navbar = () => {
 					</div>
 				</div>
 				<div className="flex items-center space-x-4 justify-end">
-					{!user && (
-						<a href="/register" className="hover:text-gray-300">
-							Register
-						</a>
-					)}
-
-					{user && (
+					{user ? (
 						<button onClick={handleLogout} className="hover:text-gray-300">
 							Logout
 						</button>
+					) : (
+						<a href="/register" className="hover:text-gray-300">
+							Register
+						</a>
 					)}
 
 					<a href={user ? "/profile" : "/authentication"} className="hover:text-gray-300">
