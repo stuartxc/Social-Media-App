@@ -1,10 +1,8 @@
 const { Pool } = require("pg")
 const DatabaseInstance = require("../database/Database")
+const db = DatabaseInstance.getInstance()
 class Account {
 
-  constructor() {
-    this.db = DatabaseInstance.getInstance()
-  }
   // create a new account
   static async create(req, res, next) {}
 
@@ -13,7 +11,7 @@ class Account {
     const id = req.params.userId
     console.log(id)
     try {
-      const data = await this.db.queryDb(`SELECT * FROM test WHERE id=${id};`)
+      const data = await db.queryDb(`SELECT * FROM account WHERE username='${id}';`)
       
       res.json(data)
     } catch (error) {
