@@ -54,10 +54,6 @@ class Server {
 		this.app.post("/comment/:postId", Comment.create);
 		this.app.delete("/comment/:commentId", Comment.delete);
 
-		this.app.post("/post", Post.create);
-		this.app.delete("/post/:postId", Post.delete);
-		this.app.get("/post/:postId", Post.get);
-
 		this.app.post("/chat/:chatId", Chat.create);
 		this.app.delete("/chat/:messageId", Chat.delete);
 		this.app.get("/chat/:chatId", Chat.get);
