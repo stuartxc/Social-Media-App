@@ -1,6 +1,7 @@
 const express = require("express");
 const { Pool } = require("pg");
 const cors = require("cors");
+const passport = require("passport");
 
 const Authentication = require("../controller/Authentication");
 const Account = require("../controller/Account");
@@ -34,6 +35,8 @@ class Server {
 
     registerMiddleware() {
         this.app.use(cors());
+        this.app.use(express.urlencoded({ extended: false }));
+        this.app.use(passport.initialize());
 
         // JSON parser should be before express.raw
         this.app.use(express.json());
