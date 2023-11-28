@@ -29,13 +29,13 @@ const getPostsByUser = async (username) => {
         console.log("FETCHING POSTS")
 		const posts = await postsRaw.json();
 		if (posts.length == 0) {
-			return null;
+			return [];
 		} else {
 			console.log(posts);
 			return posts;
 		}
 	} catch {
-		return null;
+		return [];
 	}
 };
 
