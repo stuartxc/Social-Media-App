@@ -2,7 +2,7 @@ class Caption {
     static async create(req, res) {
 		try {
 			const text = "INSERT INTO Caption(caption, postID, advertisement?) VALUES($1, $2, $3) RETURNING *"
-			const values = ["test caption", 1, 0]
+			const values = [req.body.caption, 1, req.body.advertisment]
 			const data = await this.queryDatabase(text, values)
 			console.log(res.json(data.rows[0]))
 		  } catch (error) {

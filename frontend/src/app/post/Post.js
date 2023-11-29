@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import CreatePost from "./CreatePost";
-import DeletePost from "./DeletePost";
-import ViewPosts from "./ViewPosts";
+import CreatePost from "./CreatePost.js";
+import DeletePost from "./DeletePost.js";
+import ViewPosts from "./ViewPosts.js";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const POST_URL = `${BACKEND_URL}/post`;

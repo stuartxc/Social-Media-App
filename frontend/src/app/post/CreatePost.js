@@ -6,22 +6,24 @@ const POST_URL = `${BACKEND_URL}/post`;
 
 const CreatePost = () => {
 	const [caption, setCaption] = useState("");
-    const [type, setType] = useState(-1);
-	const [image, setImage] = useState(null);
+    const [type, setType] = useState("");
+	const [file, setFile] = useState(null);
+	const [advertisement, setAdvertisement] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const tryCreate = async () => {
         const response = await fetch(POST_URL, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: {},
             body: JSON.stringify({
                 caption: caption,
-                type: type
+                type: type,
+				file: file,
+				advertisement: advertisement
             })
         });
+
 
         const data = await response.json();
 
@@ -37,14 +39,20 @@ const CreatePost = () => {
         setErrorMessage("");
         setIsLoading(true);
 
-        if (!caption || type == -1) {
+        if (!caption || type === null) {
             setErrorMessage("Caption and type are required");
             setIsLoading(false);
             return;
         }
 
 		if (type == 1 && image == null){
-			setErrorMessage("Image is required for ImagePost");
+			setErrorMessage("Image is required for an image post");
+            setIsLoading(false);
+            return;
+		}
+
+		if (type == 2 && image == null){
+			setErrorMessage("Video is required for a video post");
             setIsLoading(false);
             return;
 		}
@@ -69,20 +77,41 @@ const CreatePost = () => {
                     value={caption}
                     onChange={(e) => setCaption(e.target.value)}
                 />
-                <input
+                <label for="type">Type of post: {type === 0 ? "Text post" : type === 1 ? "Image post" : type === 2 ? "Video post" : null}</label>
+				<input
                     type="number"
-                    placeholder="0, 1, or 2"
+                    placeholder="0, 1, or 2 (text, image, or video post)"
                     className="px-4 py-2 border border-gray-300 rounded-md"
+					min={0}
+					max={2}
                     value={type}
                     onChange={(e) => setType(e.target.value)}
                 />
-				{type == 1 ? <input
-                    type="image"
-                    placeholder="drop image"
+				<label for="advertisement">Is this post an advertisement:</label>
+				<select id="advertisement" value={advertisement} onChange={(e) => e.target.value === "No" ? setAdvertisement(false) : setAdvertisement(true)}>
+					<option value="no">No</option>
+					<option value="yes">Yes</option>
+				</select>
+				{type == 1 ? <div>
+					<label for="myImage">Select an image:</label>
+					<input
+                    type="file"
+                    placeholder="select an image"
                     className="px-4 py-2 border border-gray-300 rounded-md"
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                /> : null}
+                    value={file}
+                    onChange={(e) => setFile(e.target.value)}
+                	></input>
+				</div> : null}
+				{type == 2 ? <div>
+					<label for="myVideo">Select a video:</label>
+					<input
+                    type="file"
+                    placeholder="select a video"
+                    className="px-4 py-2 border border-gray-300 rounded-md"
+                    value={file}
+                    onChange={(e) => setFile(e.target.value)}
+                	></input>
+				</div> : null}
                 <button
                     type="submit"
                     onClick={handleSubmit}

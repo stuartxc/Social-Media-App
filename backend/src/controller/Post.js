@@ -1,4 +1,7 @@
 const Caption = require("./Caption.js");
+const TextPost = require("./TextPost.js");
+const ImagePost = require("./ImagePost.js");
+const VideoPost = require("./VideoPost.js");
 
 const DatabaseInstance = require("../database/Database");
 var format = require("pg-format");
@@ -9,11 +12,29 @@ class Post {
     static async create(req, res) {
 		
 		try {
+			let pid = 1;
 			const text = "INSERT INTO Post(postID, URL, caption, createdBy, type) VALUES($1, $2, $3, $4, $5) RETURNING *"
-			const values = [1, "placeholderURL", "test caption", "stuart", 0]
+			const values = [pid, "placeholderURL", req.body.caption, "stuart", req.body.type]
 			const data = await db.queryDb(text, values)
 			console.log(res.json(data.rows[0]))
-			Caption.create(req, res)
+			Caption.create(req, res, pid)
+			switch (req.body.type) {
+				case 0: {
+					TextPost.create(req, res, pid);
+					break;
+				}
+				case 1: {
+					ImagePost.create(req, res, pid);
+					break;
+				}
+				case 2: {
+					VideoPost.create(req, res, pid);
+					break;
+				}
+				default: {
+					res.status(501).send("Unidentified Type error in CreatePost");
+				}
+			}
 		  } catch (error) {
 			console.error(error)
 			res.status(500).send("Server Error")
