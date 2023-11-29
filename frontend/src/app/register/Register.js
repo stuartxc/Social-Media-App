@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/authContext";
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-const LOGIN_URL = `${BACKEND_URL}/login`;
 
-const Login = () => {
+const REGISTER_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/account`;
+const Register = () => {
+	const [email, setEmail] = useState("");
 	const [username, setUserName] = useState("");
 	const [password, setPassword] = useState("");
 	const [errorMessage, setErrorMessage] = useState("");
@@ -15,26 +14,16 @@ const Login = () => {
 
 	const router = useRouter();
 
-	const { login } = useAuth();
-	const tryLogin = async () => {
-		const response = await fetch(LOGIN_URL, {
+	const tryRegister = async () => {
+		const response = fetch(REGISTER_URL, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({
-				username: username,
-				password: password,
-			}),
+			body: JSON.stringify({ username, email, password }),
 		});
 
-		const data = await response.json();
-
-		if (response.ok) {
-			return data;
-		}
-
-		throw new Error(data.message);
+		return response;
 	};
 
 	const handleSubmit = (e) => {
@@ -47,31 +36,38 @@ const Login = () => {
 			setIsLoading(false);
 			return;
 		}
-
-		try {
-			const data = tryLogin();
-
-			data.then((result) => {
-				console.log(result.token);
-				login(result.token);
-				setSuccessMessage("Login successful");
-
+		const data = tryRegister();
+		data.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+			return Promise.reject(response);
+		})
+			.then((result) => {
+				console.log(result);
+				setSuccessMessage("Successfully registered! Login to continue.");
 				setTimeout(() => {
-					router.push("/");
+					router.push("/authentication");
 				}, 1000);
-			}).catch((err) => {
-				setErrorMessage(err.statusText);
+			})
+			.catch((error) => {
+				console.log(error);
+				setErrorMessage(error.statusText);
 			});
-		} catch (error) {
-			setErrorMessage(error.message);
-		} finally {
-			setIsLoading(false);
-		}
+
+		setIsLoading(false);
 	};
 
 	return (
 		<div className="mx-auto max-w-md p-6">
 			<form className="flex flex-col space-y-4">
+				<input
+					type="text"
+					placeholder="Email"
+					className="px-4 py-2 border border-gray-300 rounded-md"
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+				/>
 				<input
 					type="text"
 					placeholder="Username"
@@ -86,6 +82,7 @@ const Login = () => {
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}
 				/>
+
 				<button
 					type="submit"
 					onClick={handleSubmit}
@@ -100,4 +97,4 @@ const Login = () => {
 	);
 };
 
-export default Login;
+export default Register;
