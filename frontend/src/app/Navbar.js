@@ -8,6 +8,9 @@ const Navbar = () => {
 
 	const { user, logout } = useAuth();
 	const router = useRouter();
+	if (user) {
+		console.log(user["token"]);
+	}
 
 	const handleLogout = () => {
 		logout();
@@ -20,6 +23,10 @@ const Navbar = () => {
 				<div className="flex items-center space-x-4">
 					<a href="/" className="hover:text-gray-300">
 						Home
+					</a>
+
+					<a href="/chat" className="hover:text-gray-300">
+						Chat
 					</a>
 				</div>
 				<div className="flex items-center space-x-4 justify-center flex-1">
