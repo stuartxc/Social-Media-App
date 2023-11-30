@@ -174,6 +174,7 @@ CREATE TABLE Message (
 	chatID INT,
 	account VARCHAR(20) DEFAULT 'user0',
 	timeAndDate TIMESTAMP,
+	contents VARCHAR(512),
 	PRIMARY KEY (chatID, account, timeAndDate),
 	FOREIGN KEY (chatID) REFERENCES Chat(chatID) 
 	ON DELETE CASCADE,

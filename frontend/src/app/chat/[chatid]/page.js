@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+
+const ChatAPI = `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`;
 
 const ChatPage = ({ params }) => {
 	const { chatid } = params;
 
 	const [message, setMessage] = useState("");
 	const [messages, setMessages] = useState([]);
+	const { user } = useAuth();
 
 	const router = useRouter();
 
@@ -17,13 +21,48 @@ const ChatPage = ({ params }) => {
 
 	const handleSendMessage = () => {
 		const messageData = {
-			username: "asdfdsafsda",
-			text: message,
+			tempid: messages.length, // Temporary id for the message to handle timeanddate updating
+			account: user.username,
+			contents: message,
+			timeanddate: "idk yet",
 		};
+
 		setMessages([...messages, messageData]);
 		setMessage("");
 
-		// Send message to server
+		const data = fetch(`${ChatAPI}/message`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+			body: JSON.stringify({ chatId: chatid, message: message }),
+		});
+		data.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+			return Promise.reject(response);
+		})
+			.then((result) => {
+				console.log(result);
+				setMessages((prevMessages) => {
+					const updatedMessages = [...prevMessages];
+					return updatedMessages.map((msg) => {
+						if (msg.tempid && msg.tempid === messageData.tempid) {
+							return {
+								...msg,
+								timeanddate: result.timeanddate,
+							};
+						} else {
+							return msg;
+						}
+					});
+				});
+			})
+			.catch((error) => {
+				console.error(error);
+			});
 	};
 
 	const handleKeyDown = (e) => {
@@ -31,6 +70,34 @@ const ChatPage = ({ params }) => {
 			handleSendMessage();
 		}
 	};
+
+	useEffect(() => {
+		// if (!user) {
+		// 	router.push("/login");
+		// } I do not know why refreshing the page causes the user to be null briefly, which routes back to login
+
+		const allMessages = fetch(`${ChatAPI}/${chatid}`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		});
+		allMessages
+			.then((response) => {
+				if (response.ok) {
+					return response.json();
+				}
+				return Promise.reject(response);
+			})
+			.then((result) => {
+				console.log(result);
+				setMessages(result);
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+	}, []);
 
 	return (
 		<div className="justify-center flex w-100">
@@ -45,9 +112,9 @@ const ChatPage = ({ params }) => {
 				<div className="flex-grow overflow-y-auto">
 					{messages.map((msg, index) => (
 						<div key={index} className="border-gray-200 p-4 border-b ">
-							<span className="font-semibold">{msg.username}</span>{" "}
-							<span className="text-sm text-gray-600">{msg.timestamp}</span>
-							<p>{msg.text}</p>
+							<span className="font-semibold">{msg.account}</span>{" "}
+							<span className="text-sm text-gray-600">{msg.timeanddate}</span>
+							<p>{msg.contents}</p>
 						</div>
 					))}
 				</div>

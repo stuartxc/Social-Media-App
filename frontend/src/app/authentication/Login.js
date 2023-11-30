@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/authContext";
+import { useAuth } from "@/context/AuthContext";
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const LOGIN_URL = `${BACKEND_URL}/login`;
 
