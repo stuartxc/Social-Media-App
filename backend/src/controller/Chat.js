@@ -53,6 +53,26 @@ class Chat {
 			console.error(error);
 		}
 	}
+
+	static async joinChat(req, res) {
+		try {
+			const { chatId } = req.params;
+			const { username } = req.user;
+			const doesParticipate = await Chat.isInChat(username, chatId);
+
+			if (doesParticipate) {
+				res.status(400).json({ message: "Already in chat" });
+				return;
+			} else {
+				const insertParticipates = `INSERT INTO participates (chatId, acc) VALUES ('${chatId}', '${username}');`;
+				await db.queryDb(insertParticipates);
+				res.status(200).json({ message: "joined chat" });
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
 	static async createMessage(req, res) {
 		try {
 			const { username } = req.user;
@@ -67,6 +87,33 @@ class Chat {
 		}
 	}
 	static async deleteMessage(req, res) {}
+
+	static async socketSendMessage() {}
+	static async socketJoinChat(socket, chatId) {
+		const { user } = socket;
+
+		const doesParticipate = await Chat.isInChat(user, chatId);
+
+		if (doesParticipate) {
+			socket.join(`chat-${chatId}`);
+			socket.emit("join-chat-success", { chatId });
+		} else {
+			socket.emit("join-chat-fail", { chatId });
+		}
+	}
+
+	static async socketLeaveChat(socket, chatId) {
+		socket.leave(`chat-${chatId}`);
+		socket.emit("leave-chat-success", { chatId });
+		// TODO: emit fail if they were not in the channel?
+	}
+
+	static async isInChat(user, chatId) {
+		const participatesInChat = `SELECT * FROM participates WHERE acc='${user.username}' AND chatId=${chatId};`;
+		const rows = await db.queryDb(participatesInChat);
+		const doesParticipate = rows.length > 0;
+		return doesParticipate;
+	}
 }
 
 module.exports = Chat;

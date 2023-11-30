@@ -3,17 +3,32 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import io from "socket.io-client";
 
-const ChatAPI = `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`;
+const CHAT_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`;
+const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const ChatPage = ({ params }) => {
 	const { chatid } = params;
-
+	const [socket, setSocket] = useState(null);
 	const [message, setMessage] = useState("");
 	const [messages, setMessages] = useState([]);
 	const { user } = useAuth();
 
 	const router = useRouter();
+
+	const connectSocket = () => {
+		const newSocket = io(SOCKET_SERVER_URL, {
+			auth: { token: localStorage.getItem("token") },
+		});
+		setSocket(newSocket);
+	};
+
+	const disconnectSocket = () => {
+		if (socket) {
+			socket.disconnect();
+		}
+	};
 
 	const handleBack = () => {
 		router.push("/chat");
@@ -30,7 +45,7 @@ const ChatPage = ({ params }) => {
 		setMessages([...messages, messageData]);
 		setMessage("");
 
-		const data = fetch(`${ChatAPI}/message`, {
+		const data = fetch(`${CHAT_URL}/message`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -71,12 +86,8 @@ const ChatPage = ({ params }) => {
 		}
 	};
 
-	useEffect(() => {
-		// if (!user) {
-		// 	router.push("/login");
-		// } I do not know why refreshing the page causes the user to be null briefly, which routes back to login
-
-		const allMessages = fetch(`${ChatAPI}/${chatid}`, {
+	const getInitialMessages = async () => {
+		const allMessages = fetch(`${CHAT_URL}/${chatid}`, {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",
@@ -97,6 +108,17 @@ const ChatPage = ({ params }) => {
 			.catch((error) => {
 				console.error(error);
 			});
+	};
+
+	useEffect(() => {
+		// if (!user) {
+		// 	router.push("/login");
+		// } I do not know why refreshing the page causes the user to be null briefly, which routes back to login
+
+		connectSocket();
+		getInitialMessages();
+
+		return disconnectSocket;
 	}, []);
 
 	return (

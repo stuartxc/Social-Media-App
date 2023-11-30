@@ -3,6 +3,9 @@ const { Pool } = require("pg");
 const cors = require("cors");
 const passport = require("passport");
 const session = require("express-session");
+const io = require("socket.io");
+const http = require("http");
+const jwt = require("jsonwebtoken");
 
 const Authentication = require("../controller/Authentication");
 const Account = require("../controller/Account");
@@ -13,19 +16,40 @@ const Dev = require("../controller/Dev");
 const Follow = require("../controller/Follow");
 const Likes = require("../controller/Likes");
 
+const secretKey = process.env.JWT_SECRET_KEY;
+
 const passportConfig = require("../middleware/PassportConfig");
 
 class Server {
 	constructor(port) {
 		this.app = express();
 		this.port = port;
-
+		this.server = http.createServer(this.app);
+		this.io = io(this.server, {
+			cors: {
+				origin: "*",
+				methods: ["GET", "POST", "DELETE", "PUT"],
+			},
+		});
 		this.init();
 	}
 
 	init() {
+		this.registerSocket();
 		this.registerMiddleware();
 		this.registerRoutes();
+	}
+
+	registerSocket() {
+		this.io.on("connection", (socket) => {
+			console.log("A new connection has occured");
+
+			socket.on("join-chat", Chat.socketJoinChat);
+
+			socket.on("disconnect", () => {
+				console.log("A user has disconnected");
+			});
+		});
 	}
 
 	registerMiddleware() {
@@ -41,6 +65,23 @@ class Server {
 		// JSON parser should be before express.raw
 		this.app.use(express.json());
 		this.app.use(express.raw({ type: "application/*", limit: "25mb" }));
+
+		this.io.use((socket, next) => {
+			const token = socket.handshake.auth.token;
+
+			if (!token) {
+				console.log("Authentication error for socket");
+				return next(new Error("Authentication error, no token provided"));
+			}
+
+			jwt.verify(token, secretKey, (err, user) => {
+				if (err) return next("Authentication error, bad token");
+				socket.user = user;
+
+				console.log("Socket user registered, ", user.username);
+				next();
+			});
+		});
 	}
 
 	registerRoutes() {
@@ -60,6 +101,7 @@ class Server {
 		this.app.get("/post/:postId", Post.get);
 
 		this.app.post("/chat", Authentication.authenticateToken, Chat.create);
+		this.app.put("/chat/join/:chatId", Authentication.authenticateToken, Chat.joinChat);
 		this.app.get("/chat", Authentication.authenticateToken, Chat.getAllChats);
 		this.app.delete("/chat/:chatId", Authentication.authenticateToken, Chat.delete);
 		this.app.get("/chat/:chatId", Authentication.authenticateToken, Chat.getChat);
@@ -89,8 +131,9 @@ class Server {
 	}
 
 	start() {
-		this.app.listen(this.port, () => {
-			console.log(`Listening at http://localhost:${this.port}`);
+		this.server.listen(this.port, () => {
+			// need to use this.server for socket.io
+			console.log(`Server listening on port ${this.port}`);
 		});
 	}
 }
