@@ -7,6 +7,8 @@ const DatabaseInstance = require("../database/Database");
 const db = DatabaseInstance.getInstance();
 var format = require("pg-format");
 
+const POST_URL = "http://localhost:3000/post";
+
 class Post {
 	static createAssociated(req, res, pid) {
 		Caption.create(req, res, pid)
@@ -31,6 +33,7 @@ class Post {
 
 	static async create(req, res) {
 		const { caption, type, advertisement } = req.body;
+		const { username } = req.user;
 		const time = Date.now();		
 		try {
 			const pidData = await db.queryDb(`SELECT MAX(postID) AS max FROM Post;`);
@@ -38,10 +41,9 @@ class Post {
 			
 			const text = 
 				`INSERT INTO post (postID, URL, caption, createdBy, timestamp, type) VALUES
-				(${pid}, 'placeholderURL', '${caption}', 'user1', to_timestamp(${time} / 1000.0), ${type});`;
-			// const values = [pid, "placeholderURL", caption, "stuart", type];
+				(${pid}, '${POST_URL}/${pid}', '${caption}', '${username}', to_timestamp(${time} / 1000.0), ${type});`;
 			const data = await db.queryDb(text);
-
+			res.json(data);
 			// this.createAssociated(req, res, pid);
 		  } catch (error) {
 			console.error(error)

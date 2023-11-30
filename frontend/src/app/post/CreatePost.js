@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/context/authContext";
 // const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const BACKEND_URL = "http://localhost:3000";
 const POST_URL = `${BACKEND_URL}/post`;
 
 const CreatePost = () => {
+	const { user } = useAuth();
 	const [caption, setCaption] = useState("");
     const [type, setType] = useState("");
 	const [file, setFile] = useState(null);
@@ -20,6 +22,7 @@ const CreatePost = () => {
             method: "POST",
 			headers: {
 				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("token")}`
 			},
             body: JSON.stringify(body)
         });
@@ -29,7 +32,7 @@ const CreatePost = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // setErrorMessage("");
+        setErrorMessage("");
         setIsLoading(true);
 
         if (!caption || type === null) {
@@ -48,6 +51,12 @@ const CreatePost = () => {
 			setErrorMessage("Video is required for a video post");
             setIsLoading(false);
             return;
+		}
+
+		if (!user) {
+			setErrorMessage("User must be logged in to create a post");
+			setIsLoading(false);
+			return;
 		}
 		const data = tryCreate();
 		data.then((response) => {
