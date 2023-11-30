@@ -30,13 +30,12 @@ const getLikes = async (id) => {
 			cache: "no-store",
 		});
 		const likes = await postsRaw.json();
-		return likes[0].count;
+		return likes;
 	} catch {
 		return 0;
 	}
 };
 
-const likePost = async (id, like) => {};
 
 const fetchPostContent = async (id, type) => {
 	try {
@@ -81,7 +80,7 @@ const Post = async ({ id }) => {
 		const postContent = await fetchPostContent(id, post.type);
 		const likes = await getLikes(id);
 
-		return <PostBody post={post} likes={likes} PostContent={postContent[0]} />;
+		return <PostBody post={post} PostContent={postContent[0]} />;
 	}
 };
 
