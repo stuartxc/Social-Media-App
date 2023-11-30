@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+// const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+const BACKEND_URL = "http://localhost:3000";
 const POST_URL = `${BACKEND_URL}/post`;
 
 const ViewPosts = () => {

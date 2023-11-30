@@ -30,6 +30,17 @@ class DatabaseInstance {
       client.release()
     }
   }
+
+  async queryDbValues(queryText, queryValues) {
+    const client = await this.pool.connect()
+    try {
+        console.log(queryText, queryValues)
+      const res = await client.query(queryText, queryValues)
+      return res.rows
+    } finally {
+      client.release()
+    }
+  }
 }
 
 module.exports = DatabaseInstance
