@@ -44,8 +44,15 @@ class Server {
 		this.io.on("connection", (socket) => {
 			console.log("A new connection has occured");
 
-			socket.on("join-chat", Chat.socketJoinChat);
+			socket.on("join-chat", ({ chatId }) => {
+				Chat.socketJoinChat(socket, chatId);
+			});
 
+			socket.on("send-message", ({ chatId, message }) => {
+				Chat.socketSendMessage(socket, chatId, message);
+			});
+
+			// socket.on("leave-chat", Chat.socketLeaveChat);
 			socket.on("disconnect", () => {
 				console.log("A user has disconnected");
 			});
@@ -78,7 +85,7 @@ class Server {
 				if (err) return next("Authentication error, bad token");
 				socket.user = user;
 
-				console.log("Socket user registered, ", user.username);
+				console.log("Socket user registered and authenticated, ", user.username);
 				next();
 			});
 		});

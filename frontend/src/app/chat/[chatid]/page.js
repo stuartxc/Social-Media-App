@@ -3,48 +3,25 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import io from "socket.io-client";
+import { useSocket } from "@/socket/socket";
 
 const CHAT_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`;
 const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const ChatPage = ({ params }) => {
 	const { chatid } = params;
-	const [socket, setSocket] = useState(null);
 	const [message, setMessage] = useState("");
 	const [messages, setMessages] = useState([]);
 	const { user } = useAuth();
+	const { socket } = useSocket();
 
 	const router = useRouter();
-
-	const connectSocket = () => {
-		const newSocket = io(SOCKET_SERVER_URL, {
-			auth: { token: localStorage.getItem("token") },
-		});
-		setSocket(newSocket);
-	};
-
-	const disconnectSocket = () => {
-		if (socket) {
-			socket.disconnect();
-		}
-	};
 
 	const handleBack = () => {
 		router.push("/chat");
 	};
 
-	const handleSendMessage = () => {
-		const messageData = {
-			tempid: messages.length, // Temporary id for the message to handle timeanddate updating
-			account: user.username,
-			contents: message,
-			timeanddate: "idk yet",
-		};
-
-		setMessages([...messages, messageData]);
-		setMessage("");
-
+	const saveMessageToServer = (messageData) => {
 		const data = fetch(`${CHAT_URL}/message`, {
 			method: "POST",
 			headers: {
@@ -74,10 +51,39 @@ const ChatPage = ({ params }) => {
 						}
 					});
 				});
+
+				emitMessageRealtime({
+					chatId: chatid,
+					message: {
+						...messageData,
+						timeanddate: result.timeanddate,
+					},
+				});
 			})
 			.catch((error) => {
 				console.error(error);
 			});
+	};
+
+	const emitMessageRealtime = (messageData) => {
+		if (!socket) {
+			return;
+		}
+
+		socket.emit("send-message", messageData);
+	};
+
+	const handleSendMessage = () => {
+		const messageData = {
+			tempid: messages.length, // Temporary id for the message to handle timeanddate updating
+			account: user.username,
+			contents: message,
+			timeanddate: "idk yet",
+		};
+
+		setMessages([...messages, messageData]);
+		setMessage("");
+		saveMessageToServer(messageData);
 	};
 
 	const handleKeyDown = (e) => {
@@ -102,7 +108,6 @@ const ChatPage = ({ params }) => {
 				return Promise.reject(response);
 			})
 			.then((result) => {
-				console.log(result);
 				setMessages(result);
 			})
 			.catch((error) => {
@@ -110,16 +115,29 @@ const ChatPage = ({ params }) => {
 			});
 	};
 
+	const joinSocketRoom = () => {
+		if (!socket) return;
+		socket.emit("join-chat", { chatId: chatid });
+	};
+
+	const setupSocketListeners = () => {
+		if (!socket) return;
+		console.log("setup?");
+		socket.on("join-chat-success", (data) => {
+			console.log("Joined chat successfully", data);
+		});
+
+		socket.on("receive-message", (message) => {
+			console.log("received", message);
+			setMessages((prevMessages) => [...prevMessages, message]);
+		});
+	};
+
 	useEffect(() => {
-		// if (!user) {
-		// 	router.push("/login");
-		// } I do not know why refreshing the page causes the user to be null briefly, which routes back to login
-
-		connectSocket();
 		getInitialMessages();
-
-		return disconnectSocket;
-	}, []);
+		setupSocketListeners();
+		joinSocketRoom();
+	}, [user, socket]);
 
 	return (
 		<div className="justify-center flex w-100">
@@ -128,7 +146,7 @@ const ChatPage = ({ params }) => {
 					<button onClick={handleBack} className="hover:text-red-600">
 						←
 					</button>
-					<h2 className="text-xl font-semibold">Chat</h2>
+					<h2 className="text-xl font-semibold">Chat: {chatid}</h2>
 					<button className="hover:text-red-600">Leave</button>
 				</div>
 				<div className="flex-grow overflow-y-auto">

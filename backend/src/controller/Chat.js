@@ -43,7 +43,6 @@ class Chat {
 	static async getChat(req, res) {
 		try {
 			const { chatId } = req.params;
-			console.log(req.user);
 
 			// get all messages sorted on the timestamp, newest first
 			const getMessages = `SELECT * FROM message WHERE chatId=${chatId} ORDER BY timeAndDate ASC;`;
@@ -88,28 +87,40 @@ class Chat {
 	}
 	static async deleteMessage(req, res) {}
 
-	static async socketSendMessage() {}
+	static async socketSendMessage(socket, chatId, message) {
+		try {
+			socket.broadcast.to(`chat_${chatId}`).emit("receive-message", message);
+		} catch (error) {
+			console.error(error);
+		}
+	}
 	static async socketJoinChat(socket, chatId) {
-		const { user } = socket;
+		try {
+			const { user } = socket;
 
-		const doesParticipate = await Chat.isInChat(user, chatId);
+			const doesParticipate = await Chat.isInChat(user.username, chatId);
 
-		if (doesParticipate) {
-			socket.join(`chat-${chatId}`);
-			socket.emit("join-chat-success", { chatId });
-		} else {
-			socket.emit("join-chat-fail", { chatId });
+			if (doesParticipate) {
+				console.log(`joining chat: chat_${chatId}`);
+				socket.join(`chat_${chatId}`);
+				socket.emit("join-chat-success", { chatId });
+				console.log("joined chat successfully: " + chatId);
+			} else {
+				socket.emit("join-chat-fail", { chatId });
+			}
+		} catch (error) {
+			console.error(error);
 		}
 	}
 
-	static async socketLeaveChat(socket, chatId) {
-		socket.leave(`chat-${chatId}`);
-		socket.emit("leave-chat-success", { chatId });
-		// TODO: emit fail if they were not in the channel?
-	}
+	// static async socketLeaveChat(socket, chatId) {
+	// 	socket.leave(`chat_${chatId}`);
+	// 	socket.emit("leave-chat-success", { chatId });
+	// 	// TODO: emit fail if they were not in the channel?
+	// }
 
-	static async isInChat(user, chatId) {
-		const participatesInChat = `SELECT * FROM participates WHERE acc='${user.username}' AND chatId=${chatId};`;
+	static async isInChat(username, chatId) {
+		const participatesInChat = `SELECT * FROM participates WHERE acc='${username}' AND chatId=${chatId};`;
 		const rows = await db.queryDb(participatesInChat);
 		const doesParticipate = rows.length > 0;
 		return doesParticipate;
