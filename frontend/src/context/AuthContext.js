@@ -28,7 +28,7 @@ const AuthProvider = ({ children }) => {
 			if (didTokenExpire) {
 				logout();
 			} else {
-				setUser(decodedToken);
+				setUser({ ...decodedToken, token });
 			}
 		}
 	}, []);

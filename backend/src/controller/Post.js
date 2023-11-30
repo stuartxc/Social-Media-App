@@ -8,7 +8,6 @@ const db = DatabaseInstance.getInstance();
 var format = require("pg-format");
 
 class Post {
-
 	static createAssociated(req, res, pid) {
 		Caption.create(req, res, pid)
 		switch (type) {
@@ -74,6 +73,32 @@ class Post {
 			} else {
 				data = await db.queryDb("SELECT * FROM Post;");
 				console.log(res.json(data));
+			}
+		} catch (error) {
+			console.error(error);
+			res.status(500).send("Server Error");
+		}
+	}
+
+	static async getContent(req, res) {
+		try {
+			const { postId, type } = req.query;
+			let data;
+			if (postId && type) {
+				if (type ==0) {
+					data = await db.queryDb(`SELECT * FROM TextPost WHERE postID=${postId};`);
+					res.json(data);
+					// TODO
+				// } else if (type ==1) {
+				// 	data = await db.queryDb(`SELECT * FROM ImagePost WHERE postID=${postId};`);
+				// } else if (type==2) {
+				// 	data = await db.queryDb(`SELECT * FROM VideoPost WHERE postID=${postId};`);
+				} else {
+					res.status(500).send("Invalid Post Type");
+				}
+				
+			} else {
+				res.status(500).send("Invalid Fetch URL");
 			}
 		} catch (error) {
 			console.error(error);

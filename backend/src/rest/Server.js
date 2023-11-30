@@ -10,7 +10,8 @@ const Comment = require("../controller/Comment");
 const Post = require("../controller/Post");
 const Chat = require("../controller/Chat");
 const Dev = require("../controller/Dev");
-const Follow = require("../controller/Follow")
+const Follow = require("../controller/Follow");
+const Likes = require("../controller/Likes");
 
 const passportConfig = require("../middleware/PassportConfig");
 
@@ -54,18 +55,35 @@ class Server {
 		this.app.post("/comment/:postId", Comment.create);
 		this.app.delete("/comment/:commentId", Comment.delete);
 
-		this.app.post("/chat/:chatId", Chat.create);
-		this.app.delete("/chat/:messageId", Chat.delete);
-		this.app.get("/chat/:chatId", Chat.get);
-        
-        this.app.get("/followers/:userId", Follow.getFollowers)
-        this.app.get("/following/:userId", Follow.getFollowing)
-        this.app.post("/follow/:follower/:following", Follow.follow)
-        this.app.delete("/unfollow/:follower/:following", Follow.unfollow)
+		this.app.post("/post", Post.create);
+		this.app.delete("/post/:postId", Post.delete);
+		this.app.get("/post/:postId", Post.get);
 
-        this.app.post("/post", Post.create);
-        this.app.delete("/post/:postId", Post.delete);
-        this.app.get("/post", Post.get);
+		this.app.post("/chat", Authentication.authenticateToken, Chat.create);
+		this.app.get("/chat", Authentication.authenticateToken, Chat.getAllChats);
+		this.app.delete("/chat/:chatId", Authentication.authenticateToken, Chat.delete);
+		this.app.get("/chat/:chatId", Authentication.authenticateToken, Chat.getChat);
+
+		this.app.post("/chat/message", Authentication.authenticateToken, Chat.createMessage);
+		this.app.post(
+			"/chat/message/:messageId",
+			Authentication.authenticateToken,
+			Chat.deleteMessage
+		);
+
+		this.app.get("/followers/:userId", Follow.getFollowers);
+		this.app.get("/following/:userId", Follow.getFollowing);
+		this.app.post("/follow/:follower/:following", Follow.follow);
+		this.app.delete("/unfollow/:follower/:following", Follow.unfollow);
+
+		this.app.post("/post", Post.create);
+		this.app.delete("/post/:postId", Post.delete);
+		this.app.get("/post", Post.get);
+		this.app.get("/post/content", Post.getContent);
+
+		this.app.post("/likes/:postId/:userId", Likes.like);
+		this.app.get("/likes/:postId", Likes.getLikesByPost);
+		this.app.delete("/likes/:postId/:userId", Likes.unLike);
 
 		this.app.get("/table/:tableName", Dev.getTable);
 	}

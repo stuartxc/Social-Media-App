@@ -1,4 +1,4 @@
-import CenteredBox from "@/component/form/CenteredBox";
+import CenteredBox from "@/components/form/CenteredBox";
 import Login from "./Login";
 
 const Authentication = () => {
