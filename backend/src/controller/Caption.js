@@ -1,9 +1,13 @@
+const DatabaseInstance = require("../database/Database");
+const db = DatabaseInstance.getInstance();
+
 class Caption {
-    static async create(req, res) {
+    static async create(req, res, pid) {
+		const { caption, type, file, advertisement } = req.body;
 		try {
-			const text = "INSERT INTO Caption(caption, postID, advertisement?) VALUES($1, $2, $3) RETURNING *"
-			const values = [req.body.caption, 1, req.body.advertisment]
-			const data = await this.queryDatabase(text, values)
+			const text = "INSERT INTO caption (caption, postID, advertisement?) VALUES($1, $2, $3) RETURNING *"
+			const values = [caption, pid, advertisement]
+			const data = await db.queryDbValues(text, values)
 			console.log(res.json(data.rows[0]))
 		  } catch (error) {
 			console.error(error)
@@ -12,7 +16,7 @@ class Caption {
 	}
     static async get(req, res) {
 		try {
-			const data = await this.queryDatabase("SELECT caption, postID FROM Caption;")
+			const data = await db.queryDbValues("SELECT caption, postID FROM Caption;")
 			console.log(res.json(data));
 		  } catch (error) {
 			console.error(error)
