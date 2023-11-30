@@ -9,7 +9,7 @@ const Navbar = () => {
 	const { user, logout } = useAuth();
 	const router = useRouter();
 	if (user) {
-		console.log(user["token"]);
+		console.log("Logged in with token: " + user["token"]);
 	}
 
 	const handleLogout = () => {

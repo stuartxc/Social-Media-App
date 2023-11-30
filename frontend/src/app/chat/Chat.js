@@ -1,14 +1,30 @@
 "use client";
 
+import { useAuth } from "@/context/authContext";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+const ChatAPI = `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`;
+
 const Chat = ({ chat, idx }) => {
+	const { user } = useAuth();
+	const router = useRouter();
 	const handleClick = () => {
-		console.log("hi");
+		if (!user) {
+			console.error("User not logged in");
+			return;
+		}
+		router.push(`/chat/${chat.chatid}`);
 	};
+
 	return (
 		<li key={idx} className="border-b border-gray-200 p-4 hover:bg-gray-100">
 			<button className="w-full text-lg focus:outline-none text-left" onClick={handleClick}>
-				<div className="text-lg">{chat.name}</div>
-				<div className="text-sm text-gray-600">Something, test test</div>
+				<div className="text-lg">
+					<span className="text-gray-500">#{chat.chatid}</span>
+				</div>
+				<div className="text-sm text-gray-600">
+					Participants: {chat.participants.map((name) => name.acc)}
+				</div>
 			</button>
 		</li>
 	);
@@ -16,11 +32,29 @@ const Chat = ({ chat, idx }) => {
 
 const AddChat = () => {
 	const handleClick = () => {
-		console.log("hi");
+		const data = fetch(`${ChatAPI}`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		});
+		data.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+			return Promise.reject(response);
+		})
+			.then((result) => {
+				console.log(result);
+			})
+			.catch((error) => {
+				console.error(error);
+			});
 	};
 
 	return (
-		<li className="border-b border-gray-200 hover:bg-gray-100">
+		<li key="create-chat" className="border-b border-gray-200 hover:bg-gray-100">
 			<button
 				className="w-full p-4 flex items-center text-lg focus:outline-none"
 				onClick={handleClick}
@@ -32,8 +66,36 @@ const AddChat = () => {
 	);
 };
 
-const ChatMenu = ({ chats }) => {
-	chats = [{ name: "hi" }];
+const ChatMenu = () => {
+	const [chats, setChats] = useState([]);
+
+	const getChats = () => {
+		const data = fetch(`${ChatAPI}`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		});
+		data.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+			return Promise.reject(response);
+		})
+			.then((result) => {
+				console.log(result);
+				setChats(result);
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+	};
+
+	useEffect(() => {
+		getChats();
+	}, []);
+
 	return (
 		<div className="flex justify-center w-100 p-4">
 			<div className="max-h-screen overflow-y-auto bg-white shadow-lg w-2/3 border rounded">
