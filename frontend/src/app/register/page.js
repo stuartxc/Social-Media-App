@@ -1,6 +1,6 @@
 import React from "react";
 import Register from "./Register";
-import CenteredBox from "@/component/form/CenteredBox";
+import CenteredBox from "@/components/form/CenteredBox";
 
 export default () => {
     return (
