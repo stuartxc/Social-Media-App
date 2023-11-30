@@ -3,12 +3,32 @@ const DatabaseInstance = require("../database/Database");
 const db = DatabaseInstance.getInstance();
 class Follow {
 	
+    // this.app.post("/follow/:follower/:following", Follow.follow);
 	static async follow(req, res, next) {
-		
+		const follower = req.params.follower;
+        const following = req.params.following;
+		try {
+			const data = await db.queryDb(`INSERT INTO follow (follower, following) VALUES ('${follower}', '${following}');`);
+
+			res.json(data);
+		} catch (error) {
+			console.error(error);
+			res.status(500).send("Server Error");
+		}
 	}
 
+    // this.app.delete("/unfollow/:follower/:following", Follow.unfollow);
     static async unfollow(req, res, next) {
-		
+		const follower = req.params.follower;
+        const following = req.params.following;
+		try {
+			const data = await db.queryDb(`DELETE FROM follow WHERE follower='${follower}' AND following='${following}';`);
+
+			res.json(data);
+		} catch (error) {
+			console.error(error);
+			res.status(500).send("Server Error");
+		}
 	}
 
 	// get an account
