@@ -122,13 +122,12 @@ const ChatPage = ({ params }) => {
 
 	const setupSocketListeners = () => {
 		if (!socket) return;
-		console.log("setup?");
 		socket.on("join-chat-success", (data) => {
 			console.log("Joined chat successfully", data);
 		});
 
 		socket.on("receive-message", (message) => {
-			console.log("received", message);
+			// console.log("received", message);
 			setMessages((prevMessages) => [...prevMessages, message]);
 		});
 	};
