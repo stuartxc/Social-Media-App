@@ -67,11 +67,6 @@ CREATE TABLE validateUser (
 	ON DELETE CASCADE
 );
 
-CREATE TABLE Caption (
-	caption VARCHAR(280) PRIMARY KEY,
-	advertisement BOOLEAN
-);
-
 CREATE TABLE Post (
 	postID INT PRIMARY KEY,
 	URL VARCHAR(255),
@@ -80,6 +75,15 @@ CREATE TABLE Post (
 	timestamp TIMESTAMP NOT NULL,
 	type INT,
 	FOREIGN KEY (createdBy) REFERENCES Account(username)	
+);
+
+CREATE TABLE Caption (
+	caption VARCHAR(280),
+	postID INT,
+	advertisement BOOLEAN,
+	PRIMARY KEY (caption, postID),
+	FOREIGN KEY (postID) REFERENCES Post(postID)
+	ON DELETE CASCADE
 );
 
 CREATE TABLE likePost (
@@ -96,9 +100,7 @@ CREATE TABLE TextPost (
 	postID INT PRIMARY KEY,
 	content VARCHAR(280),
 	FOREIGN KEY (postID) REFERENCES Post(postID)
-	ON DELETE CASCADE,
-	FOREIGN KEY (content) REFERENCES Post(caption)
-	ON UPDATE CASCADE
+	ON DELETE CASCADE
 );
 
 CREATE TABLE VideoPost (
@@ -237,13 +239,6 @@ INSERT INTO Hashtags(text, color) VALUES
 ('Hashtag4', 'FFFF00'),
 ('Hashtag5', 'FF00FF');
 
-INSERT INTO Caption(caption, advertisement) VALUES
-('This is caption 1', TRUE),
-('This is caption 2', FALSE),
-('This is caption 3', TRUE),
-('This is caption 4', FALSE),
-('This is caption 5', TRUE);
-
 INSERT INTO Post(postID, URL, caption, createdBy, timestamp, type) VALUES
 (1, 'http://example1.com', 'This is caption 1', 'user1', '2023-10-10 00:00:00', 0),
 (2, 'http://example2.com', 'This is caption 2', 'user2', '2023-10-10 00:00:00', 0),
@@ -261,6 +256,13 @@ INSERT INTO Post(postID, URL, caption, createdBy, timestamp, type) VALUES
 (14, 'http://example14.com', 'This is caption 4', 'user4', '2023-10-10 00:00:00', 2),
 (15, 'http://example15.com', 'This is caption 5', 'user5', '2023-10-10 00:00:00', 2);
 
+INSERT INTO Caption(caption, postID, advertisement) VALUES
+('This is caption 1', 1, TRUE),
+('This is caption 2', 2, FALSE),
+('This is caption 3', 3, TRUE),
+('This is caption 4', 4, FALSE),
+('This is caption 5', 5, TRUE);
+
 INSERT INTO likePost(postID, acc) VALUES
 (1, 'user1'),
 (2, 'user2'),
@@ -269,11 +271,11 @@ INSERT INTO likePost(postID, acc) VALUES
 (5, 'user5');
 
 INSERT INTO TextPost(postID, content) VALUES
-(1, 'This is a text post 1'),
-(2, 'This is a text post 2'),
-(3, 'This is a text post 3'),
-(4, 'This is a text post 4'),
-(5, 'This is a text post 5');
+(1, 'This is caption 1'),
+(2, 'This is caption 2'),
+(3, 'This is caption 3'),
+(4, 'This is caption 4'),
+(5, 'This is caption 5');
 
 INSERT INTO VideoPost(postID, content) VALUES
 (11, 'BINARY_DATA'),

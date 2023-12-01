@@ -1,39 +1,17 @@
 import { useState, useEffect } from "react";
 import FollowButton from "../../../components/follow/FollowButton.js";
-import { useAuth } from "@/context/authContext.js";
 const getCurrUserFollowing = async () => {};
-const FollowerInfo = ({ isOpen, onClose, followersInfo, followingInfo, isFollower, currUser }) => {
-	const [followedAccounts, setFollowedAccounts] = useState([]);
-	// const { user } = useAuth();
-
-	useEffect(() => {
-		if (currUser) {
-			const encodedUsername = encodeURIComponent(currUser.username);
-			fetch(`http://localhost:3000/following/${encodedUsername}`, {
-				method: "GET",
-				cache: "no-store",
-			})
-				.then((response) => response.json())
-				.then((data) => {
-                    const followedAccs = data.map((followPair) => followPair.following);
-                    console.log(followedAccs)
-					setFollowedAccounts(followedAccs);
-					console.log(followedAccounts);
-				})
-				.catch((error) => console.error("Error:", error));
-		}
-	}, [currUser]);
-
-	const handleFollowChange = (username, isNowFollowing) => {
-		setFollowedAccounts((current) => {
-			if (isNowFollowing) {
-				return [...current, username];
-			} else {
-				return current.filter((acc) => acc !== username);
-			}
-		});
-	};
-
+const FollowerInfo = ({
+	isOpen,
+	onClose,
+	followersInfo,
+	followingInfo,
+	isFollower,
+	currUser,
+	followedAccounts,
+	setFollowedAccounts,
+	handleFollowChange,
+}) => {
 	const visibility = isOpen ? "flex" : "hidden";
 	const handleBackdropClick = (event) => {
 		if (event.currentTarget === event.target) {
@@ -99,11 +77,17 @@ const FollowerInfo = ({ isOpen, onClose, followersInfo, followingInfo, isFollowe
 									<a href={`/user/${following.following}`}>
 										{following.following}
 									</a>
-									<div>
+									<FollowButton
+										followedAccounts={followedAccounts}
+										currUser={currUser}
+										targetUser={following.following}
+										onFollowChange={handleFollowChange}
+									/>
+									{/* <div>
 										{existsFollowingPair(following.following)
 											? "Also follows you"
 											: "Does not follow you"}
-									</div>
+									</div> */}
 								</li>
 						  ))}
 				</ul>

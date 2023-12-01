@@ -5,19 +5,13 @@ class VideoPost {
     static async create(req, res, pid) {
 		const { caption, type, file, advertisement } = req.body;
 		try {
-			const binary = this.convert(file);
-			const text = `INSERT INTO VideoPost(postID, content) VALUES(${pid}, '${binary}') RETURNING *`
-			const values = [pid, file]
-			const data = await db.queryDbValues(text, values)
-			console.log(res.json(data.rows[0]))
+			const text = `INSERT INTO VideoPost(postID, content) VALUES(${pid}, '${file}');`;
+			const data = await db.queryDb(text)
+			// res.json(data);
 		  } catch (error) {
 			console.error(error)
 			res.status(500).send("Server Error")
 		}
-	}
-	static convert(file) {
-		fr = new FileReader();
-		return fr.readAsBinaryString(file);
 	}
 
 	// 	// Close the large object
@@ -33,7 +27,7 @@ class VideoPost {
 	// }
     static async get(req, res) {
 		try {
-			const data = await db.queryDbValues("SELECT postID, caption FROM videopost;")
+			const data = await db.queryDb("SELECT postID, caption FROM VideoPost;")
 			console.log(res.json(data));
 		  } catch (error) {
 			console.error(error)

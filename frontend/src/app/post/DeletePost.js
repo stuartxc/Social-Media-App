@@ -1,24 +1,39 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-const BACKEND_URL = "http://localhost:3000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+// const BACKEND_URL = "http://localhost:3000";
 const POST_URL = `${BACKEND_URL}/post`;
 
 const DeletePost = () => {
 	const [targetId, setTargetId] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+	const [successMessage, setSuccessMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const tryDelete = async () => {
 		const POST_ID_URL = POST_URL + "/" + targetId
 		console.log(POST_ID_URL)
         const response = await fetch(POST_ID_URL, {
-            method: "DELETE"
+            method: "DELETE",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("token")}`
+			}
         });
 
         return response;
     };
+
+	const handleErrors = (errorText) => {
+		if (errorText == "Forbidden") {
+			setErrorMessage("Unauthorized: You must be the creator of the post to delete that post.");
+		} else if (errorText == "Not Found") {
+			setErrorMessage("Not found error: That post does not exist.");
+		} else {
+			setErrorMessage(errorText);
+		}
+	}
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -39,11 +54,13 @@ const DeletePost = () => {
 			return Promise.reject(response);
 		}).then((result) => {
 			console.log(result);
+			setErrorMessage("");
 			setSuccessMessage("Successfully deleted the post.");
 		})
 		.catch((error) => {
 			console.log(error);
-			setErrorMessage(error.statusText);
+			setSuccessMessage("");
+			handleErrors(error.statusText);
 		});
 		setIsLoading(false);
     };
@@ -69,6 +86,7 @@ const DeletePost = () => {
                 </button>
             </form>
             {errorMessage && <div className="text-red-500">{errorMessage}</div>}
+			{successMessage && <div className="text-blue-500">{successMessage}</div>}
         </div>
     );
 };
