@@ -7,6 +7,25 @@ const SEARCH_URL = "http://localhost:3000/search";
 class Search {
 
 	static async get(req, res) {
+		try {
+			const {
+					postId, caption, createdBy, type, advertisement,
+					postTime, username, accountTime, following, followers
+				} = req.query;
+			console.log(postId);
+			console.log(caption);
+			console.log(createdBy);
+			console.log(username);
+			console.log(following);
+			const data = await db.queryDb(`SELECT * FROM Post WHERE postID=${parseInt(postId)} AND caption=${caption};`);
+			res.json(data);
+		} catch (error) {
+			console.error(error);
+			res.status(500).send("Server Error");
+		}
+	}
+
+	static async get(req, res) {
 		// try {
 		// 	const { username, postId } = req.query;
 		// 	let data;
