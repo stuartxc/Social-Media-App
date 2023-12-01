@@ -21,7 +21,7 @@ class Authentication {
 
 	static async login(req, res) {
 		const user = { username: req.user.username };
-		const token = jwt.sign(user, secretKey, { expiresIn: "1h" });
+		const token = jwt.sign(user, secretKey, { expiresIn: "12h" });
 		return res.json({ message: "Logged in successfully", token: token });
 	}
 
