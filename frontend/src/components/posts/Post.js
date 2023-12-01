@@ -80,7 +80,7 @@ const Post = async ({ id }) => {
 		const postContent = await fetchPostContent(id, post.type);
 		const likes = await getLikes(id);
 
-		return <PostBody post={post} PostContent={postContent[0]} />;
+		return <PostBody post={post} />;
 	}
 };
 
