@@ -39,7 +39,23 @@ class Chat {
 			console.error(error);
 		}
 	}
-	static async delete(req, res) {}
+	static async deleteChat(req, res) {
+		try {
+			const { chatId } = req.params;
+			const { username } = req.user;
+			const doesParticipate = await Chat.isInChat(username, chatId);
+
+			if (doesParticipate) {
+				const deleteChat = `DELETE FROM chat WHERE chatId = '${chatId}';`;
+				await db.queryDb(deleteChat);
+				res.status(200).json({ message: "Deleted chat" });
+			} else {
+				res.status(400).json({ message: "Cannot delete chat (unauthorized)." });
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	}
 	static async getChat(req, res) {
 		try {
 			const { chatId } = req.params;
@@ -57,15 +73,32 @@ class Chat {
 		try {
 			const { chatId } = req.params;
 			const { username } = req.user;
-			const doesParticipate = await Chat.isInChat(username, chatId);
 
+			const doesChatExist = await Chat.doesChatExist(chatId);
+			if (doesChatExist === false) {
+				res.status(400).json({ message: "Chat does not exist" });
+				return;
+			}
+
+			const doesParticipate = await Chat.isInChat(username, chatId);
 			if (doesParticipate) {
-				res.status(400).json({ message: "Already in chat" });
+				return res.status(400).json({ message: "Already in chat" });
 			} else {
 				const insertParticipates = `INSERT INTO participates (chatId, acc) VALUES ('${chatId}', '${username}');`;
 				await db.queryDb(insertParticipates);
 				res.status(200).json({ message: "joined chat" });
 			}
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
+	static async doesChatExist(chatId) {
+		try {
+			const doesChatExist = `SELECT * FROM chat WHERE chatId=${chatId};`;
+			const rows = await db.queryDb(doesChatExist);
+			const doesExist = rows.length > 0;
+			return doesExist;
 		} catch (error) {
 			console.error(error);
 		}

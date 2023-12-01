@@ -157,6 +157,27 @@ const ChatPage = ({ params }) => {
 			.catch((error) => console.error(error));
 	};
 
+	const handleDeleteChat = () => {
+		const data = fetch(`${CHAT_URL}/${chatid}`, {
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		});
+		data.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+			return Promise.reject(response);
+		})
+			.then((result) => {
+				console.log(result);
+				router.push("/chat");
+			})
+			.catch((error) => console.error(error));
+	};
+
 	return (
 		<div className="justify-center flex w-100">
 			<div className="w-2/3 max-h-screen bg-white shadow-lg flex flex-col">
@@ -165,9 +186,14 @@ const ChatPage = ({ params }) => {
 						←
 					</button>
 					<h2 className="text-xl font-semibold">Chat: {chatid}</h2>
-					<button className="hover:text-red-600" onClick={handleLeaveChat}>
-						Leave
-					</button>
+					<div>
+						<button className="hover:text-red-600 p-4" onClick={handleLeaveChat}>
+							Leave
+						</button>
+						<button className="hover:text-red-600" onClick={handleDeleteChat}>
+							Delete
+						</button>
+					</div>
 				</div>
 				<div className="flex-grow overflow-y-auto">
 					{messages.map((msg, index) => (

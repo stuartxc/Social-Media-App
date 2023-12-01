@@ -95,6 +95,7 @@ const JoinChat = () => {
 			})
 			.catch((error) => {
 				console.error(error);
+				alert("Error: " + error.statusText);
 			});
 	};
 
