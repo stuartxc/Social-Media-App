@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-// const REGISTER_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/account`;
-const REGISTER_URL = `http://localhost:3000/account`;
+const REGISTER_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/account`;
+// const REGISTER_URL = `http://localhost:3000/account`;
 const Register = () => {
 	const [email, setEmail] = useState("");
 	const [username, setUserName] = useState("");

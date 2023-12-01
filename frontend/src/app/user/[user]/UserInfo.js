@@ -1,27 +1,27 @@
 "use client";
 import React, { useState } from "react";
 import FollowerInfo from "./Followers";
-import { useAuth } from "@/context/authContext";
+import { useAuth } from "@/context/AuthContext";
 
 const UserInfo = ({ username, bio, followers, following, numPosts }) => {
 	const [followInfoVisibility, setFollowInfoVisibility] = useState(false);
 	const [isFollower, setIsFollower] = useState(true);
-    // const [currUser, setCurrUser] = useState(null);
-    const { user } = useAuth();
-    if(user) {
-        console.log("logged in " + user.username)
-        // setCurrUser(user);
-    }
+	// const [currUser, setCurrUser] = useState(null);
+	const { user } = useAuth();
+	if (user) {
+		console.log("logged in " + user.username);
+		// setCurrUser(user);
+	}
 	const openFollowers = () => {
 		setFollowInfoVisibility(true);
-        setIsFollower(true);
+		setIsFollower(true);
 	};
-    const openFollowing = () => {
-        setFollowInfoVisibility(true);
+	const openFollowing = () => {
+		setFollowInfoVisibility(true);
 		setIsFollower(false);
 	};
 	const colseFollowInfo = () => setFollowInfoVisibility(false);
-	
+
 	return (
 		<div className="max-w-screen-md mx-auto">
 			<div className="flex items-center p-4">
@@ -49,9 +49,9 @@ const UserInfo = ({ username, bio, followers, following, numPosts }) => {
 				isOpen={followInfoVisibility}
 				onClose={colseFollowInfo}
 				followersInfo={followers}
-                followingInfo={following}
+				followingInfo={following}
 				isFollower={isFollower}
-                currUser={user}
+				currUser={user}
 			/>
 		</div>
 	);
