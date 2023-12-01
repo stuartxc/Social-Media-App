@@ -6,7 +6,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useSocket } from "@/socket/socket";
 
 const CHAT_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`;
-const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const ChatPage = ({ params }) => {
 	const { chatid } = params;
@@ -37,11 +36,10 @@ const ChatPage = ({ params }) => {
 			return Promise.reject(response);
 		})
 			.then((result) => {
-				console.log(result);
 				setMessages((prevMessages) => {
 					const updatedMessages = [...prevMessages];
 					return updatedMessages.map((msg) => {
-						if (msg.tempid && msg.tempid === messageData.tempid) {
+						if (msg.tempid != null && msg.tempid === messageData.tempid) {
 							return {
 								...msg,
 								timeanddate: result.timeanddate,
@@ -78,10 +76,10 @@ const ChatPage = ({ params }) => {
 			tempid: messages.length, // Temporary id for the message to handle timeanddate updating
 			account: user.username,
 			contents: message,
-			timeanddate: "idk yet",
+			timeanddate: "timestamp awaiting...",
 		};
 
-		setMessages([...messages, messageData]);
+		setMessages((prevMessages) => [...prevMessages, messageData]);
 		setMessage("");
 		saveMessageToServer(messageData);
 	};
@@ -138,6 +136,27 @@ const ChatPage = ({ params }) => {
 		joinSocketRoom();
 	}, [user, socket]);
 
+	const handleLeaveChat = () => {
+		const data = fetch(`${CHAT_URL}/leave/${chatid}`, {
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		});
+		data.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+			return Promise.reject(response);
+		})
+			.then((result) => {
+				console.log(result);
+				router.push("/chat");
+			})
+			.catch((error) => console.error(error));
+	};
+
 	return (
 		<div className="justify-center flex w-100">
 			<div className="w-2/3 max-h-screen bg-white shadow-lg flex flex-col">
@@ -146,7 +165,9 @@ const ChatPage = ({ params }) => {
 						←
 					</button>
 					<h2 className="text-xl font-semibold">Chat: {chatid}</h2>
-					<button className="hover:text-red-600">Leave</button>
+					<button className="hover:text-red-600" onClick={handleLeaveChat}>
+						Leave
+					</button>
 				</div>
 				<div className="flex-grow overflow-y-auto">
 					{messages.map((msg, index) => (

@@ -109,6 +109,7 @@ class Server {
 
 		this.app.post("/chat", Authentication.authenticateToken, Chat.create);
 		this.app.put("/chat/join/:chatId", Authentication.authenticateToken, Chat.joinChat);
+		this.app.delete("/chat/leave/:chatId", Authentication.authenticateToken, Chat.leaveChat);
 		this.app.get("/chat", Authentication.authenticateToken, Chat.getAllChats);
 		this.app.delete("/chat/:chatId", Authentication.authenticateToken, Chat.delete);
 		this.app.get("/chat/:chatId", Authentication.authenticateToken, Chat.getChat);
