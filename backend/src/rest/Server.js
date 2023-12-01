@@ -115,11 +115,7 @@ class Server {
 		this.app.get("/chat/:chatId", Authentication.authenticateToken, Chat.getChat);
 
 		this.app.post("/chat/message", Authentication.authenticateToken, Chat.createMessage);
-		this.app.post(
-			"/chat/message/:messageId",
-			Authentication.authenticateToken,
-			Chat.deleteMessage
-		);
+		this.app.put("/chat/message", Authentication.authenticateToken, Chat.editMessage);
 
 		this.app.get("/followers/:userId", Follow.getFollowers);
 		this.app.get("/following/:userId", Follow.getFollowing);

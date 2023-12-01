@@ -58,9 +58,7 @@ const ChatPage = ({ params }) => {
 					},
 				});
 			})
-			.catch((error) => {
-				console.error(error);
-			});
+			.catch((error) => alertError(error));
 	};
 
 	const emitMessageRealtime = (messageData) => {
@@ -76,6 +74,7 @@ const ChatPage = ({ params }) => {
 			tempid: messages.length, // Temporary id for the message to handle timeanddate updating
 			account: user.username,
 			contents: message,
+			directedto: null,
 			timeanddate: "timestamp awaiting...",
 		};
 
@@ -106,11 +105,10 @@ const ChatPage = ({ params }) => {
 				return Promise.reject(response);
 			})
 			.then((result) => {
+				console.log(result);
 				setMessages(result);
 			})
-			.catch((error) => {
-				console.error(error);
-			});
+			.catch((error) => alertError(error));
 	};
 
 	const joinSocketRoom = () => {
@@ -154,7 +152,7 @@ const ChatPage = ({ params }) => {
 				console.log(result);
 				router.push("/chat");
 			})
-			.catch((error) => console.error(error));
+			.catch((error) => alertError(error));
 	};
 
 	const handleDeleteChat = () => {
@@ -175,7 +173,71 @@ const ChatPage = ({ params }) => {
 				console.log(result);
 				router.push("/chat");
 			})
-			.catch((error) => console.error(error));
+			.catch((error) => alertError(error));
+	};
+
+	const handleEditDirectedTo = (message) => {
+		const newDirectedTo = prompt("Enter new directed to (MUST BE A USERNAME): ");
+		const newMessage = { ...message, directedto: newDirectedTo };
+		const data = fetch(`${CHAT_URL}/message`, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+			body: JSON.stringify({
+				chatId: chatid,
+				message: newMessage,
+			}),
+		});
+
+		data.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+			return Promise.reject(response);
+		})
+			.then((result) => {
+				console.log(result);
+			})
+			.catch((error) => {
+				alertError(error);
+			});
+	};
+
+	const alertError = (error) => {
+		error.json().then((res) => {
+			alert(`Error: ${res.message}`);
+		});
+	};
+	const handleEditMessage = (message) => {
+		const newMessage = {
+			...message,
+			contents: prompt("Enter new message: "),
+		};
+
+		const data = fetch(`${CHAT_URL}/message`, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+			body: JSON.stringify({
+				chatId: chatid,
+				message: newMessage,
+			}),
+		});
+
+		data.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+			return Promise.reject(response);
+		})
+			.then((result) => {
+				console.log(result);
+			})
+			.catch((error) => alertError(error));
 	};
 
 	return (
@@ -200,6 +262,18 @@ const ChatPage = ({ params }) => {
 						<div key={index} className="border-gray-200 p-4 border-b ">
 							<span className="font-semibold">{msg.account}</span>{" "}
 							<span className="text-sm text-gray-600">{msg.timeanddate}</span>
+							<button
+								className="text-md pl-4"
+								onClick={() => handleEditDirectedTo(msg)}
+							>
+								To: {msg.directedto}
+							</button>
+							<button
+								className="text-md float-right"
+								onClick={() => handleEditMessage(msg)}
+							>
+								Edit
+							</button>
 							<p>{msg.contents}</p>
 						</div>
 					))}

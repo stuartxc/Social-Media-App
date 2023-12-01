@@ -135,6 +135,24 @@ class Chat {
 			res.status(400).json({ message: "Error creating message" });
 		}
 	}
+
+	static async editMessage(req, res) {
+		try {
+			const { chatId, message } = req.body;
+			const { account, contents, timeanddate, directedto } = message;
+			console.log(chatId, account, contents, timeanddate, directedto);
+			const directedToStr = directedto == null ? "NULL" : `'${directedto}'`;
+			// const doesItExist = `SELECT * FROM message WHERE chatId=${chatId} AND account='${account}' and timeAndDate='${timeanddate}'::timestamptz;`;
+			// const rows = await db.queryDb(doesItExist);
+			const editMessage = `UPDATE message SET contents='${contents}', directedto=${directedToStr} WHERE chatId=${chatId} AND account='${account}' and timeAndDate='${timeanddate}'::timestamptz;`;
+			const data = await db.queryDb(editMessage);
+			res.status(200).json({ message: "Edited Message" });
+		} catch (error) {
+			console.error(error);
+			res.status(400).json({ message: `Couldn't edit message -> ${error.detail}` });
+		}
+	}
+
 	static async deleteMessage(req, res) {}
 
 	static async socketSendMessage(socket, chatId, message) {
