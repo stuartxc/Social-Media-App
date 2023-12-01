@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import LikeButton from "./LikeButton";
 
-const PostBody = ({ post, PostContent, isLiked }) => {
+const PostBody = ({ post }) => {
 	const loading = <div> LOADING ... </div>;
 
     const openComments = () => {};
@@ -13,7 +13,7 @@ const PostBody = ({ post, PostContent, isLiked }) => {
 	if (post.type == 0) {
 		content = (
 			<Suspense>
-				<div>{PostContent.content}</div>
+				<div>{post.content}</div>
 			</Suspense>
 		);
 	} else {
@@ -33,6 +33,7 @@ const PostBody = ({ post, PostContent, isLiked }) => {
 							{post.createdby}
 						</a>
 					</div>
+                    <p className="my-2"> PostID: {post.postid}</p>
 					<p className="my-2">{post.caption}</p>
 					<div>
 						{/* {post.hashtags.map((tag, index) => (

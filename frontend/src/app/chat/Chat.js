@@ -24,7 +24,7 @@ const Chat = ({ chat, idx }) => {
 					<span className="text-gray-500">#{chat.chatid}</span>
 				</div>
 				<div className="text-sm text-gray-600">
-					Participants: {chat.participants.map((name) => name.acc)}
+					Participants: {chat.participants.map((name) => name.acc).join(", ")}
 				</div>
 			</button>
 		</li>

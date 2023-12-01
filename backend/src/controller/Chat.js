@@ -61,11 +61,28 @@ class Chat {
 
 			if (doesParticipate) {
 				res.status(400).json({ message: "Already in chat" });
-				return;
 			} else {
 				const insertParticipates = `INSERT INTO participates (chatId, acc) VALUES ('${chatId}', '${username}');`;
 				await db.queryDb(insertParticipates);
 				res.status(200).json({ message: "joined chat" });
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
+	static async leaveChat(req, res) {
+		try {
+			const { chatId } = req.params;
+			const { username } = req.user;
+			const doesParticipate = await Chat.isInChat(username, chatId);
+
+			if (doesParticipate) {
+				const deleteParticipates = `DELETE FROM participates WHERE chatId = ${chatId} AND acc = '${username}';`;
+				await db.queryDb(deleteParticipates);
+				res.status(200).json({ message: "left chat" });
+			} else {
+				res.status(400).json({ message: "Already not in chat." });
 			}
 		} catch (error) {
 			console.error(error);

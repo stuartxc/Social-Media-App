@@ -25,9 +25,11 @@ const Navbar = () => {
 						Home
 					</a>
 
-					<a href="/chat" className="hover:text-gray-300">
-						Chat
-					</a>
+					{user && (
+						<a href="/chat" className="hover:text-gray-300">
+							Chat
+						</a>
+					)}
 				</div>
 				<div className="flex items-center space-x-4 justify-center flex-1">
 					<a href="/post" className="hover:text-gray-300">
