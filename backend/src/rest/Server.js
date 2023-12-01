@@ -15,6 +15,7 @@ const Chat = require("../controller/Chat");
 const Dev = require("../controller/Dev");
 const Follow = require("../controller/Follow");
 const Likes = require("../controller/Likes");
+const Search = require("../controller/Search");
 
 const secretKey = process.env.JWT_SECRET_KEY;
 
@@ -133,6 +134,8 @@ class Server {
 		this.app.delete("/likes/:postId/:userId", Likes.unLike);
 
 		this.app.get("/table/:tableName", Dev.getTable);
+
+		this.app.get("/search", Search.get);
 	}
 
 	start() {
