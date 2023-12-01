@@ -1,26 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-const BACKEND_URL = "http://localhost:3000";
-const POST_URL = `${BACKEND_URL}/post`;
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+// const BACKEND_URL = "http://localhost:3000";
+const SEARCH_URL = `${BACKEND_URL}/search`;
 
-const ViewPosts = () => {
-	const [username, setUserName] = useState("");
-    const [password, setPassword] = useState("");
+const Search = () => {
+	const [postId, setPostId] = useState("");
+    const [caption, setCaption] = useState("");
+    const [user, setUser] = useState("");
+    const [type, setType] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    const tryLogin = async () => {
+    const trySearch = async () => {
         const response = await fetch(LOGIN_URL, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-                username: username,
-                password: password,
-            }),
+            body: JSON.stringify({}),
         });
 
         const data = await response.json();
@@ -37,14 +36,8 @@ const ViewPosts = () => {
         setErrorMessage("");
         setIsLoading(true);
 
-        if (!username || !password) {
-            setErrorMessage("Username and password are required");
-            setIsLoading(false);
-            return;
-        }
-
         try {
-            const data = tryLogin();
+            const data = trySearch();
             console.log(data);
         } catch (error) {
             setErrorMessage(error.message);
@@ -58,17 +51,17 @@ const ViewPosts = () => {
             <form className="flex flex-col space-y-4">
                 <input
                     type="text"
-                    placeholder="Username"
+                    placeholder="postId"
                     className="px-4 py-2 border border-gray-300 rounded-md"
-                    value={username}
-                    onChange={(e) => setUserName(e.target.value)}
+                    value={postId}
+                    onChange={(e) => setPostId(e.target.value)}
                 />
                 <input
-                    type="password"
-                    placeholder="Password"
+                    type="text"
+                    placeholder="caption"
                     className="px-4 py-2 border border-gray-300 rounded-md"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
                 />
                 <button
                     type="submit"
@@ -83,4 +76,4 @@ const ViewPosts = () => {
     );
 };
 
-export default ViewPosts;
+export default Search;

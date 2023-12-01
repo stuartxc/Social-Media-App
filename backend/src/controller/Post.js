@@ -10,50 +10,77 @@ var format = require("pg-format");
 const POST_URL = "http://localhost:3000/post";
 
 class Post {
-
 	static async create(req, res) {
-		const { caption, type, file, advertisement } = req.body;
+		const { caption, type, file, advertisement, hashtags } = req.body;
 		const { username } = req.user;
 		const time = Date.now();
 		try {
 			const pidData = await db.queryDb(`SELECT MAX(postID) AS max FROM Post;`);
 			const pid = pidData[0]["max"] + 1;
 			if (type !== "0" && type !== "1" && type !== "2") {
-				console.error("Type can only be 0, 1, or 2")
-				res.status(500).send("Type can only be 0, 1, or 2")
+				console.error("Type can only be 0, 1, or 2");
+				res.status(500).send("Type can only be 0, 1, or 2");
 				return;
 			}
 			const typeInt = parseInt(type);
-
-			const text = 
-				`INSERT INTO post (postID, URL, caption, createdBy, timestamp, type) VALUES
+			console.log(1);
+			let promises = [];
+			let promises2 = [];
+			await hashtags.forEach((hashtag) => {
+				db.queryDb(`SELECT * FROM Hashtags WHERE text='${hashtag.text}'`).then((res) => {
+					if (res.length == 0) {
+						try {
+							db.queryDb(
+								`INSERT INTO Hashtags (text, color) VALUES ('${hashtag.text}', '${hashtag.color.substring(1)}')`
+							);
+						} catch {}
+					}
+				});
+			});
+			console.log(2);
+			await Promise.all(promises);
+			console.log(3);
+			await Promise.all(promises2);
+			console.log(4);
+			const text = `INSERT INTO post (postID, URL, caption, createdBy, timestamp, type) VALUES
 				(${pid}, '${POST_URL}/${pid}', '${caption}', '${username}', to_timestamp(${time} / 1000.0), ${typeInt});`;
 
 			const data = await db.queryDb(text);
-			const captionData = await Caption.create(req, res, pid)
-			console.log("Aftercap")
+			const captionData = await Caption.create(req, res, pid);
+			console.log("Aftercap");
 			switch (typeInt) {
 				case 0: {
-					console.log("textpost")
+					console.log("textpost");
 					const textPostData = await TextPost.create(req, res, pid);
 					break;
 				}
 				case 1: {
-					console.log("imagepost")
+					console.log("imagepost");
 					const imagePostData = await ImagePost.create(req, res, pid);
 					break;
 				}
 				default: {
-					console.log("videopost")
+					console.log("videopost");
 					const videoPostData = await VideoPost.create(req, res, pid);
 					break;
 				}
 			}
-			res.json(data);
-		  } catch (error) {
-			console.error(error)
-			res.status(500).send("Server Error")
 
+			const promises3 = [];
+
+			hashtags.forEach((hashtag) => {
+				promises3.push(
+					db.queryDb(
+						`INSERT INTO associateHashtag (postID, hashtag) VALUES (${pid}, '${hashtag.text}')`
+					)
+				);
+			});
+			await Promise.all(promises3);
+			console.log(6);
+			res.json(data);
+		} catch (error) {
+			console.error(error);
+			res.status(500).send("Server Error");
 		}
 	}
 
@@ -61,14 +88,18 @@ class Post {
 		try {
 			const target = req.params.postId;
 			const { username } = req.user;
-			const dataUser = await db.queryDb(`SELECT username FROM account WHERE username='${username}';`);
+			const dataUser = await db.queryDb(
+				`SELECT username FROM account WHERE username='${username}';`
+			);
 			if (dataUser.length <= 0) {
 				return res.status(469).send({ message: "Unexpected error: User does not exist" });
 			}
 			const user = dataUser[0]["username"];
-			const checkCreator = await db.queryDb(`SELECT createdBy FROM Post WHERE postID = '${target}';`);
+			const checkCreator = await db.queryDb(
+				`SELECT createdBy FROM Post WHERE postID = '${target}';`
+			);
 			if (checkCreator.length <= 0) {
-				return res.status(404).send({ message: "Post does not exist"});
+				return res.status(404).send({ message: "Post does not exist" });
 			}
 			const creator = checkCreator[0]["createdby"];
 			if (user !== creator) {
