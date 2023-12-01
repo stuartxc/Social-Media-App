@@ -58,9 +58,24 @@ class Post {
 	static async delete(req, res) {
 		try {
 			const target = req.params.postId;
-			// const sql = format("DELETE FROM Post WHERE postID = %L", target);
-			const data = await db.queryDb(`DELETE FROM Post WHERE postID = '${target}'`);
-			console.log(res.json(data.rows[0]));
+			const { username } = req.user;
+			const dataUser = await db.queryDb(`SELECT username FROM account WHERE username='${username}';`);
+			if (dataUser.length <= 0) {
+				return res.status(469).send({ message: "Unexpected error: User does not exist" });
+			}
+			const user = dataUser[0]["username"];
+			const checkCreator = await db.queryDb(`SELECT createdBy FROM Post WHERE postID = '${target}';`);
+			if (checkCreator.length <= 0) {
+				return res.status(404).send({ message: "Post does not exist"});
+			}
+			const creator = checkCreator[0]["createdby"];
+			if (user !== creator) {
+				console.error("To delete a post, the user must be the creator of the post.");
+				res.status(403).send("User isn't authorized to delete this post");
+			} else {
+				const data = await db.queryDb(`DELETE FROM Post WHERE postID = '${target}'`);
+				res.json(data);
+			}
 		} catch (error) {
 			console.error(error);
 			res.status(500).send("Server Error");
@@ -94,11 +109,10 @@ class Post {
 				if (type ==0) {
 					data = await db.queryDb(`SELECT * FROM TextPost WHERE postID=${postId};`);
 					res.json(data);
-					// TODO
-				// } else if (type ==1) {
-				// 	data = await db.queryDb(`SELECT * FROM ImagePost WHERE postID=${postId};`);
-				// } else if (type==2) {
-				// 	data = await db.queryDb(`SELECT * FROM VideoPost WHERE postID=${postId};`);
+				} else if (type ==1) {
+					data = await db.queryDb(`SELECT * FROM ImagePost WHERE postID=${postId};`);
+				} else if (type==2) {
+					data = await db.queryDb(`SELECT * FROM VideoPost WHERE postID=${postId};`);
 				} else {
 					res.status(500).send("Invalid Post Type");
 				}

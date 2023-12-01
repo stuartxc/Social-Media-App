@@ -83,6 +83,7 @@ CREATE TABLE Caption (
 	advertisement BOOLEAN,
 	PRIMARY KEY (caption, postID),
 	FOREIGN KEY (postID) REFERENCES Post(postID)
+	ON DELETE CASCADE
 );
 
 CREATE TABLE likePost (
