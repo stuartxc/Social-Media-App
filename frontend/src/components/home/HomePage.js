@@ -22,7 +22,7 @@ const HomePage = () => {
 	}, [page, user]);
 
 	const fetchPosts = () => {
-		setLoading(true);
+		// setLoading(true);
 		fetch(`http://localhost:3000/post/feed/${user.username}?page=${page}&limit=${limit}`, {
 			method: "get",
 			cache: "no-store",
@@ -31,7 +31,7 @@ const HomePage = () => {
 			.then((data) => {
 				console.log(data);
 				setPosts((prevPosts) => [...prevPosts, ...data]);
-				setHasMore(data.length > 0);
+				setHasMore(data.length >= limit);
 				setLoading(false);
 				console.log(posts);
 			})
@@ -81,28 +81,25 @@ const HomePage = () => {
 		setPage((page) => page + 1);
 	};
 
+    // ? <></> : <div>Log IN or sign up to get started!</div>}
 	return (
 		<div className="flex flex-col justify-center items-center m-auto">
-			{loading ? (
-				"loading"
-			) : user ? (
-				<>
-					<div className="m-10">
-						{posts.map((post) => (
-							<PostBody post={post} />
-						))}
-					</div>
-					<button
-						className="border-black border-2 w-auto h-10 m-4 px-2"
-						disabled={!hasMore}
-						onClick={incrementpage}
-					>
-						{hasMore ? `Load More ` : `No more posts to load`}
-					</button>
-				</>
-			) : (
-				<div>Log IN or sign up to get started!</div>
-			)}
+			{loading ? "loading" : user ? "" : <div>Sign up or log in to get started!</div>}
+            
+            
+            
+			<div className="m-10" style={{ display: !loading ? 'block' : 'none' }}>
+				{posts.map((post) => (
+					<PostBody post={post} />
+				))}
+			</div>
+			<button
+				className="border-black border-2 w-auto h-10 m-4 px-2"
+				disabled={!hasMore}
+				onClick={incrementpage}
+			>
+				{hasMore ? `Load More ` : `No more posts to load`}
+			</button>
 		</div>
 	);
 };

@@ -33,6 +33,7 @@ const PostBody = ({ post }) => {
 							{post.createdby}
 						</a>
 					</div>
+                    <p className="my-2"> PostID: {post.postid}</p>
 					<p className="my-2">{post.caption}</p>
 					<div>
 						{/* {post.hashtags.map((tag, index) => (
