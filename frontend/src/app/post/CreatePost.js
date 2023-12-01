@@ -1,5 +1,6 @@
 "use client";
-
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/Dropdown';
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/authContext";
 // const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -10,13 +11,14 @@ const CreatePost = () => {
 	const { user } = useAuth();
 	const [caption, setCaption] = useState("");
     const [type, setType] = useState("");
-	const [file, setFile] = useState(null);
+	const [file, setFile] = useState(undefined);
+	// const [imageUrl, setImageUrl] = useState("");
 	const [advertisement, setAdvertisement] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const tryCreate = async () => {
-		let body = {caption: caption, type: type, advertisement: advertisement};
+		let body = {caption: caption, type: type, file: file, advertisement: advertisement};
 		console.log(body)
         const response = await fetch(POST_URL, {
             method: "POST",
@@ -31,6 +33,7 @@ const CreatePost = () => {
     };
 
     const handleSubmit = (e) => {
+		while(isLoading);
         e.preventDefault();
         setErrorMessage("");
         setIsLoading(true);
@@ -41,13 +44,13 @@ const CreatePost = () => {
             return;
         }
 
-		if (type == 1 && image == null){
+		if (type == 1 && file === undefined){
 			setErrorMessage("Image is required for an image post");
             setIsLoading(false);
             return;
 		}
 
-		if (type == 2 && image == null){
+		if (type == 2 && file === undefined){
 			setErrorMessage("Video is required for a video post");
             setIsLoading(false);
             return;
@@ -74,49 +77,43 @@ const CreatePost = () => {
 		});
 		setIsLoading(false);
     };
-	const sample = (e) => {
-		console.log("Submit1")
-        e.preventDefault();
-        setIsLoading(true);
 
-        if (!caption || type === null) {
-            setErrorMessage("Caption and type are required");
-            setIsLoading(false);
-            return;
-        }
-
-		if (type == 1 && image == null){
-			setErrorMessage("Image is required for an image post");
-            setIsLoading(false);
-            return;
-		}
-
-		if (type == 2 && image == null){
-			setErrorMessage("Video is required for a video post");
-            setIsLoading(false);
-            return;
-		}
-		console.log("Submit2")
-		console.log("Submit3")
-		data.then((response) => {
-			if (response.ok) {
-				return response.json();
+	function readImage(upload) {
+		document.getElementById("myImage").addEventListener('change', (event) => {
+			const file = event.target.files[0];
+			if (!file) {
+				return;
 			}
-			return Promise.reject(response);
-		}).then((result) => {
-			console.log(result);
-			setSuccessMessage("Successfully added post to database.");
-		})
-		.catch((error) => {
-			console.log(error);
-			setErrorMessage(error.statusText);
+		
+			// Create a FileReader to read the file
+			const reader = new FileReader();
+		
+			// Set up onload event - this fires when the reading is complete
+			reader.onload = function(e) {
+				const blobData = e.target.result;
+				// blobData contains the file's data as a BLOB
+				// You can now send this data to a server or process it as needed
+			};
+		
+			// Read the file as a data URL (or use readAsArrayBuffer for binary data)
+			reader.readAsDataURL(file);
 		});
-		setIsLoading(false);
-	}
+		
+		const reader = new FileReader();
+		reader.onload = function(e) {
+			const blobData = e.target.result
+		}
+		reader.readAsArrayBuffer(upload);
+		setIsLoading(true);
+		reader.addEventListener('load', (e) => {
+			setFile(e.target.result);
+			setIsLoading(false);
+		});
+	  }
 
     return (
         <div className="mx-auto max-w-md p-6">
-            <form className="flex flex-col space-y-4">
+            <form id="createForm" className="flex flex-col space-y-4">
                 <input
                     type="text"
                     placeholder="caption"
@@ -136,7 +133,16 @@ const CreatePost = () => {
                     onChange={(e) => setType(e.target.value)}
                 />
 				<label for="advertisement">Is this post an advertisement:</label>
-				<select id="advertisement" value={advertisement} onChange={(e) => e.target.value === "No" ? setAdvertisement(false) : setAdvertisement(true)}>
+				{/* <DropdownButton id="dropdown-basic-button" title="Is this post an advertisement">
+					<Dropdown.Item href="#/action-1">Yes</Dropdown.Item>
+					<Dropdown.Item href="#/action-2">No</Dropdown.Item>
+				</DropdownButton> */}
+				<select 
+					id="advertisement" 
+					value={advertisement} 
+					form="createForm"
+					onChange={(e) => e.target.value === "No" ? setAdvertisement(false) : setAdvertisement(true)}
+				>
 					<option value="no">No</option>
 					<option value="yes">Yes</option>
 				</select>
@@ -148,7 +154,10 @@ const CreatePost = () => {
                     placeholder="select an image"
                     className="px-4 py-2 border border-gray-300 rounded-md"
                     value={file}
-                    onChange={(e) => setFile(e.target.value)}
+					accept=".jpg, .jpeg, .png"
+                    onChange={(e) => {
+						readImage(e.target.value)
+					}}
                 	></input>
 				</div> : null}
 				{type == 2 ? <div>

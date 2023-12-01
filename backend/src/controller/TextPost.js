@@ -6,10 +6,9 @@ class TextPost {
     static async create(req, res, pid) {
 		const { caption, type, file, advertisement } = req.body;
 		try {
-			const text = "INSERT INTO textpost(postID, content) VALUES($1, $2) RETURNING *"
-			const values = [pid, caption]
-			const data = await db.queryDbValues(text, values)
-			console.log(res.json(data.rows[0]))
+			const text = `INSERT INTO textpost(postID, content) VALUES(${pid}, '${caption}');`;
+			const data = await db.queryDb(text);
+			// res.json(data);
 		  } catch (error) {
 			console.error(error)
 			res.status(500).send("Server Error")
@@ -18,7 +17,7 @@ class TextPost {
     static async get(req, res) {
 		try {
 			const data = await db.queryDbValues("SELECT postID, content FROM textpost;")
-			console.log(res.json(data));
+			res.json(data);
 		  } catch (error) {
 			console.error(error)
 			res.status(500).send("Server Error")

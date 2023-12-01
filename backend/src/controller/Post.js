@@ -10,41 +10,45 @@ var format = require("pg-format");
 const POST_URL = "http://localhost:3000/post";
 
 class Post {
-	static createAssociated(req, res, pid) {
-		Caption.create(req, res, pid)
-		switch (type) {
-			case 0: {
-				TextPost.create(req, res, pid);
-				break;
-			}
-			case 1: {
-				ImagePost.create(req, res, pid);
-				break;
-			}
-			case 2: {
-				VideoPost.create(req, res, pid);
-				break;
-			}
-			default: {
-				res.status(501).send("Unidentified Type error in CreatePost");
-			}
-		}
-	}
 
 	static async create(req, res) {
-		const { caption, type, advertisement } = req.body;
+		const { caption, type, file, advertisement } = req.body;
 		const { username } = req.user;
 		const time = Date.now();		
 		try {
 			const pidData = await db.queryDb(`SELECT MAX(postID) AS max FROM Post;`);
 			const pid = pidData[0]["max"] + 1;
-			
+			if (type !== "0" && type !== "1" && type !== "2") {
+				console.error("Type can only be 0, 1, or 2")
+				res.status(500).send("Type can only be 0, 1, or 2")
+				return;
+			}
+			const typeInt = parseInt(type);
+
 			const text = 
 				`INSERT INTO post (postID, URL, caption, createdBy, timestamp, type) VALUES
-				(${pid}, '${POST_URL}/${pid}', '${caption}', '${username}', to_timestamp(${time} / 1000.0), ${type});`;
+				(${pid}, '${POST_URL}/${pid}', '${caption}', '${username}', to_timestamp(${time} / 1000.0), ${typeInt});`;
 			const data = await db.queryDb(text);
+			const captionData = await Caption.create(req, res, pid)
+			console.log("Aftercap")
+			switch (typeInt) {
+				case 0: {
+					console.log("textpost")
+					const textPostData = await TextPost.create(req, res, pid);
+					break;
+				}
+				case 1: {
+					console.log("imagepost")
+					const imagePostData = await ImagePost.create(req, res, pid);
+					break;
+				}
+				default: {
+					console.log("videopost")
+					const videoPostData = await VideoPost.create(req, res, pid);
+					break;
+				}
+			}
 			res.json(data);
-			// this.createAssociated(req, res, pid);
 		  } catch (error) {
 			console.error(error)
 			res.status(500).send("Server Error")
