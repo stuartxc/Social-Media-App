@@ -1,10 +1,17 @@
 "use client";
 import React, { useState } from "react";
 import FollowerInfo from "./Followers";
+import { useAuth } from "@/context/authContext";
 
 const UserInfo = ({ username, bio, followers, following, numPosts }) => {
 	const [followInfoVisibility, setFollowInfoVisibility] = useState(false);
 	const [isFollower, setIsFollower] = useState(true);
+    // const [currUser, setCurrUser] = useState(null);
+    const { user } = useAuth();
+    if(user) {
+        console.log("logged in " + user.username)
+        // setCurrUser(user);
+    }
 	const openFollowers = () => {
 		setFollowInfoVisibility(true);
         setIsFollower(true);
@@ -44,6 +51,7 @@ const UserInfo = ({ username, bio, followers, following, numPosts }) => {
 				followersInfo={followers}
                 followingInfo={following}
 				isFollower={isFollower}
+                currUser={user}
 			/>
 		</div>
 	);

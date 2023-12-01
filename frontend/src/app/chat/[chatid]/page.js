@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { useSocket } from "@/socket/socket";
+
+const CHAT_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`;
+const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const ChatPage = ({ params }) => {
 	const { chatid } = params;
-
 	const [message, setMessage] = useState("");
 	const [messages, setMessages] = useState([]);
+	const { user } = useAuth();
+	const { socket } = useSocket();
 
 	const router = useRouter();
 
@@ -15,15 +21,69 @@ const ChatPage = ({ params }) => {
 		router.push("/chat");
 	};
 
+	const saveMessageToServer = (messageData) => {
+		const data = fetch(`${CHAT_URL}/message`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+			body: JSON.stringify({ chatId: chatid, message: message }),
+		});
+		data.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+			return Promise.reject(response);
+		})
+			.then((result) => {
+				console.log(result);
+				setMessages((prevMessages) => {
+					const updatedMessages = [...prevMessages];
+					return updatedMessages.map((msg) => {
+						if (msg.tempid && msg.tempid === messageData.tempid) {
+							return {
+								...msg,
+								timeanddate: result.timeanddate,
+							};
+						} else {
+							return msg;
+						}
+					});
+				});
+
+				emitMessageRealtime({
+					chatId: chatid,
+					message: {
+						...messageData,
+						timeanddate: result.timeanddate,
+					},
+				});
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+	};
+
+	const emitMessageRealtime = (messageData) => {
+		if (!socket) {
+			return;
+		}
+
+		socket.emit("send-message", messageData);
+	};
+
 	const handleSendMessage = () => {
 		const messageData = {
-			username: "asdfdsafsda",
-			text: message,
+			tempid: messages.length, // Temporary id for the message to handle timeanddate updating
+			account: user.username,
+			contents: message,
+			timeanddate: "idk yet",
 		};
+
 		setMessages([...messages, messageData]);
 		setMessage("");
-
-		// Send message to server
+		saveMessageToServer(messageData);
 	};
 
 	const handleKeyDown = (e) => {
@@ -32,6 +92,52 @@ const ChatPage = ({ params }) => {
 		}
 	};
 
+	const getInitialMessages = async () => {
+		const allMessages = fetch(`${CHAT_URL}/${chatid}`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		});
+		allMessages
+			.then((response) => {
+				if (response.ok) {
+					return response.json();
+				}
+				return Promise.reject(response);
+			})
+			.then((result) => {
+				setMessages(result);
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+	};
+
+	const joinSocketRoom = () => {
+		if (!socket) return;
+		socket.emit("join-chat", { chatId: chatid });
+	};
+
+	const setupSocketListeners = () => {
+		if (!socket) return;
+		socket.on("join-chat-success", (data) => {
+			console.log("Joined chat successfully", data);
+		});
+
+		socket.on("receive-message", (message) => {
+			// console.log("received", message);
+			setMessages((prevMessages) => [...prevMessages, message]);
+		});
+	};
+
+	useEffect(() => {
+		getInitialMessages();
+		setupSocketListeners();
+		joinSocketRoom();
+	}, [user, socket]);
+
 	return (
 		<div className="justify-center flex w-100">
 			<div className="w-2/3 max-h-screen bg-white shadow-lg flex flex-col">
@@ -39,15 +145,15 @@ const ChatPage = ({ params }) => {
 					<button onClick={handleBack} className="hover:text-red-600">
 						←
 					</button>
-					<h2 className="text-xl font-semibold">Chat</h2>
+					<h2 className="text-xl font-semibold">Chat: {chatid}</h2>
 					<button className="hover:text-red-600">Leave</button>
 				</div>
 				<div className="flex-grow overflow-y-auto">
 					{messages.map((msg, index) => (
 						<div key={index} className="border-gray-200 p-4 border-b ">
-							<span className="font-semibold">{msg.username}</span>{" "}
-							<span className="text-sm text-gray-600">{msg.timestamp}</span>
-							<p>{msg.text}</p>
+							<span className="font-semibold">{msg.account}</span>{" "}
+							<span className="text-sm text-gray-600">{msg.timeanddate}</span>
+							<p>{msg.contents}</p>
 						</div>
 					))}
 				</div>

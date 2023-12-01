@@ -1,8 +1,9 @@
 "use client";
 
-import { useAuth } from "@/context/authContext";
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
 const ChatAPI = `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`;
 
 const Chat = ({ chat, idx }) => {
@@ -31,6 +32,8 @@ const Chat = ({ chat, idx }) => {
 };
 
 const AddChat = () => {
+	const router = useRouter();
+
 	const handleClick = () => {
 		const data = fetch(`${ChatAPI}`, {
 			method: "POST",
@@ -47,6 +50,7 @@ const AddChat = () => {
 		})
 			.then((result) => {
 				console.log(result);
+				router.push(`/chat/${result.chatId}`);
 			})
 			.catch((error) => {
 				console.error(error);
@@ -61,6 +65,47 @@ const AddChat = () => {
 			>
 				<span className="text-green-600 align-middle mr-2 pb-0.5">⨁</span>
 				<span>Create a new chat!</span>
+			</button>
+		</li>
+	);
+};
+
+const JoinChat = () => {
+	const router = useRouter();
+	const handleClick = () => {
+		// router.push(`/chat/join`);
+		const chatId = prompt("Enter the chat ID");
+		const data = fetch(`${ChatAPI}/join/${chatId}`, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		});
+
+		data.then((response) => {
+			if (response.ok) {
+				return response.json();
+			}
+			return Promise.reject(response);
+		})
+			.then((result) => {
+				console.log(result);
+				router.push(`/chat/${chatId}`);
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+	};
+
+	return (
+		<li key="join-chat" className="border-b border-gray-200 hover:bg-gray-100">
+			<button
+				className="w-full p-4 flex items-center text-lg focus:outline-none"
+				onClick={handleClick}
+			>
+				<span className="text-grey-600 align-middle mr-2 pb-0.5">⨝</span>
+				<span>Join a new chat!</span>
 			</button>
 		</li>
 	);
@@ -105,6 +150,7 @@ const ChatMenu = () => {
 				<ul>
 					{chats && chats.map((chat, idx) => <Chat chat={chat} idx={idx} />)}
 					<AddChat />
+					<JoinChat />
 				</ul>
 			</div>
 		</div>

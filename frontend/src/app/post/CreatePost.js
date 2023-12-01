@@ -2,7 +2,7 @@
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/Dropdown';
 import { useState, useEffect } from "react";
-import { useAuth } from "@/context/authContext";
+import { useAuth } from "@/context/AuthContext";
 // const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const BACKEND_URL = "http://localhost:3000";
 const POST_URL = `${BACKEND_URL}/post`;

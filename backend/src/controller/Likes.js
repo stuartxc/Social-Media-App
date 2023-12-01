@@ -9,8 +9,8 @@ class Likes {
 		try {
 			const post = req.params.postId;
             const user = req.params.userId;
-			const sql = format(`DELETE FROM likePost WHERE postID=${post} AND acc='${user}';`);
-			const data = await db.queryDb(sql);
+			// const sql = format(`DELETE FROM likePost WHERE postID=${post} AND acc='${user}';`);
+			const data = await db.queryDb(`DELETE FROM likePost WHERE postID=${post} AND acc='${user}';`);
 			console.log(res.json(data));
 		} catch (error) {
 			console.error(error);
@@ -21,8 +21,8 @@ class Likes {
 		try {
 			const post = req.params.postId;
             const user = req.params.userId;
-			const sql = format(`INSERT INTO likePost WHERE postID=${post} AND acc='${user}';`);
-			const data = await db.queryDb(sql);
+			// const sql = format();
+			const data = await db.queryDb(`INSERT INTO likePost(postID, acc) VALUES ( ${post}, '${user}');`);
 			console.log(res.json(data));
 		} catch (error) {
 			console.error(error);
@@ -32,7 +32,7 @@ class Likes {
 	static async getLikesByPost(req, res) {
 		try {
 			const post = req.params.postId;
-			const data = await db.queryDb(`SELECT COUNT(*) FROM likePost WHERE postID=${post};`);
+			const data = await db.queryDb(`SELECT * FROM likePost WHERE postID=${post};`);
             res.json(data);
 		} catch (error) {
 			console.error(error);

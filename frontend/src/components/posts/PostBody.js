@@ -1,12 +1,15 @@
 "use client";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import PostContent from "./PostContent";
-const PostBody = ({ post, likes, PostContent }) => {
+import { useRouter } from "next/navigation";
+
+import LikeButton from "./LikeButton";
+
+const PostBody = ({ post, PostContent, isLiked }) => {
 	const loading = <div> LOADING ... </div>;
-	const openComments = () => {};
 
-	let content;
-
+    const openComments = () => {};
+    let content;
 	if (post.type == 0) {
 		content = (
 			<Suspense>
@@ -46,7 +49,7 @@ const PostBody = ({ post, likes, PostContent }) => {
 						{new Date(post.timestamp).toLocaleString()}
 					</div>
 					<div className="flex items-center justify-between mt-2">
-						<span>Likes: {likes}</span>
+						<LikeButton post={post}/>
 						<span>Bookmarks: 0</span>
 						<span>Shares: {post.shares}</span>
 						<span onClick={openComments}>Comments: {post.comments}</span>

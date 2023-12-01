@@ -2,7 +2,7 @@
 
 import "./Post.css";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/context/authContext";
+import { useAuth } from "@/context/AuthContext";
 import CreatePost from "./CreatePost.js";
 import DeletePost from "./DeletePost.js";
 import ViewPosts from "./ViewPosts.js";
