@@ -204,7 +204,9 @@ const ChatMenu = () => {
 		})
 			.then((result) => {
 				alert(
-					`There are ${result[0].count} chats with ${countOptions.countOption}: ${countOptions.countText}`
+					`There are ${result.length > 0 ? result[0].count : 0} chats with ${
+						countOptions.countOption
+					}: ${countOptions.countText}`
 				);
 			})
 			.catch((error) => {
