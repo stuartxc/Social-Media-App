@@ -106,7 +106,7 @@ class Server {
 		this.app.post("/post", Authentication.authenticateToken, Post.create);
 		this.app.delete("/post/:postId", Authentication.authenticateToken, Post.delete);
 		this.app.get("/post/:postId", Post.get);
-        this.app.get("/post/feed/:user", Post.getFeed);
+		this.app.get("/post/feed/:user", Post.getFeed);
 
 		this.app.post("/chat", Authentication.authenticateToken, Chat.create);
 		this.app.put("/chat/join/:chatId", Authentication.authenticateToken, Chat.joinChat);
@@ -117,6 +117,8 @@ class Server {
 
 		this.app.post("/chat/message", Authentication.authenticateToken, Chat.createMessage);
 		this.app.put("/chat/message", Authentication.authenticateToken, Chat.editMessage);
+
+		this.app.post("/chat/count", Authentication.authenticateToken, Chat.countChats);
 
 		this.app.get("/followers/:userId", Follow.getFollowers);
 		this.app.get("/following/:userId", Follow.getFollowing);

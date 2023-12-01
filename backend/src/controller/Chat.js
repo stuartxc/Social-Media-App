@@ -153,6 +153,33 @@ class Chat {
 		}
 	}
 
+	static async countChats(req, res) {
+		try {
+			const { countOption, countText } = req.body;
+			const { username } = req.user;
+
+			if (countOption == "user") {
+				const getChats = `
+				SELECT COUNT(*) AS count
+				FROM chat c, participates p
+				WHERE c.chatId = p.chatId
+				AND c.chatId IN (
+					SELECT chatId FROM participates WHERE acc='${countText}'
+				)
+				GROUP BY p.acc
+				HAVING p.acc='${username}';`;
+
+				const chats = await db.queryDb(getChats);
+				res.status(200).json(chats);
+			} else {
+				res.status(400).json({ message: "Invalid filter option" });
+			}
+		} catch (error) {
+			console.error(error);
+			res.status(400).json({ message: "Error filtering chats" });
+		}
+	}
+
 	static async deleteMessage(req, res) {}
 
 	static async socketSendMessage(socket, chatId, message) {
