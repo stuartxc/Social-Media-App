@@ -64,7 +64,7 @@ const Navbar = () => {
 						</a>
 					)}
 
-					<a href={user ? "/profile" : "/authentication"} className="hover:text-gray-300">
+					<a href={user ? `/user/${user.username}` : "/authentication"} className="hover:text-gray-300">
 						{user ? "Profile" : "Login"}
 					</a>
 				</div>
