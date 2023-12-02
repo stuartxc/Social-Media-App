@@ -8,7 +8,9 @@ class Follow {
 		const follower = req.params.follower;
         const following = req.params.following;
 		try {
-			const data = await db.queryDb(`INSERT INTO follow (follower, following) VALUES ('${follower}', '${following}');`);
+			const data = await db.queryDbValues(
+				`INSERT INTO follow (follower, following) VALUES ($1, $2);`, [follower, following]
+			);
 
 			res.json(data);
 		} catch (error) {
@@ -22,7 +24,9 @@ class Follow {
 		const follower = req.params.follower;
         const following = req.params.following;
 		try {
-			const data = await db.queryDb(`DELETE FROM follow WHERE follower='${follower}' AND following='${following}';`);
+			const data = await db.queryDbValues(
+				`DELETE FROM follow WHERE follower=$1 AND following=$2;`, [follower, following]
+				);
 
 			res.json(data);
 		} catch (error) {
@@ -36,7 +40,7 @@ class Follow {
 		const id = req.params.userId;
 		console.log(id);
 		try {
-			const data = await db.queryDb(`SELECT follower FROM follow WHERE following='${id}';`);
+			const data = await db.queryDbValues(`SELECT follower FROM follow WHERE following=$1;`, [id]);
 
 			res.json(data);
 		} catch (error) {
@@ -49,7 +53,7 @@ class Follow {
 		const id = req.params.userId;
 		console.log(id);
 		try {
-			const data = await db.queryDb(`SELECT following FROM follow WHERE follower='${id}';`);
+			const data = await db.queryDbValues(`SELECT following FROM follow WHERE follower=$1;`, [id]);
 
 			res.json(data);
 		} catch (error) {

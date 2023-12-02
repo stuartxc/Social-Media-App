@@ -8,7 +8,6 @@ class Search {
 
 	static async getPosts(req, res) {
 		console.log("get request")
-		let str = "SELECT * FROM poop WHERE id=$1"
 		try {
 			const { postId, caption, createdBy, type, postTime } = req.query;
 			var query = `SELECT * FROM Post WHERE `;
