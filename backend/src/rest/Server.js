@@ -16,6 +16,7 @@ const Dev = require("../controller/Dev");
 const Follow = require("../controller/Follow");
 const Likes = require("../controller/Likes");
 const Search = require("../controller/Search");
+const Hashtag = require("../controller/Hashtag");
 
 const secretKey = process.env.JWT_SECRET_KEY;
 
@@ -98,6 +99,7 @@ class Server {
 
 		this.app.post("/account", Account.create);
 		this.app.get("/account/:userId", Account.get);
+        this.app.get("/account", Account.getGeneral);
 		this.app.put("/account/:userId", Account.update);
 
 		this.app.get("/comment/:postId", Comment.get);
@@ -141,6 +143,9 @@ class Server {
 
 		this.app.get("/search/post", Search.getPosts);
 		this.app.get("/search/user", Search.getUsers);
+		this.app.get("/search", Search.get);
+
+        this.app.get("/hashtag", Hashtag.get)
 	}
 
 	start() {

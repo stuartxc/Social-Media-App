@@ -34,14 +34,36 @@ class Account {
 	// get an account
 	static async get(req, res) {
 		const id = req.params.userId;
+		const values = [];
 		console.log(id);
 		try {
-			const data = await db.queryDb(`SELECT * FROM account WHERE username='${id}';`);
+			values.push(id);
+			const sql = `SELECT * FROM account WHERE username=$1;`;
+			const data = await db.queryDbValues(sql, values);
 
 			res.json(data);
 		} catch (error) {
 			console.error(error);
 			res.status(500).send("Server Error");
+		}
+	}
+
+	static async getGeneral(req, res) {
+		const { numPosts } = req.query;
+		const values = [];
+		if (numPosts) {
+			try {
+				values.push(numPosts);
+				const sql = `SELECT createdBy
+        FROM Post
+        GROUP BY createdBy
+        HAVING COUNT(postID) >= $1;`;
+				const data = await db.queryDbValues(sql, values);
+				res.json(data);
+			} catch (error) {
+				console.error(error);
+				res.status(500).send("Server Error");
+			}
 		}
 	}
 
