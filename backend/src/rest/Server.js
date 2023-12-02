@@ -135,7 +135,9 @@ class Server {
 		this.app.get("/likes/:postId", Likes.getLikesByPost);
 		this.app.delete("/likes/:postId/:userId", Likes.unLike);
 
-		this.app.get("/table/:tableName", Dev.getTable);
+		this.app.get("/tableColumns/:tableName", Dev.getTableColumns);
+		this.app.get("/table/:tableName", Dev.getTableData);
+		this.app.get("/tables", Dev.getTables);
 
 		this.app.get("/search", Search.get);
 	}
