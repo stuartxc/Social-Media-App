@@ -30,6 +30,10 @@ const Navbar = () => {
 							Chat
 						</a>
 					)}
+
+					<a href="/dev" className="hover:text-gray-300">
+						Dev
+					</a>
 				</div>
 				<div className="flex items-center space-x-4 justify-center flex-1">
 					<a href="/post" className="hover:text-gray-300">
