@@ -139,7 +139,8 @@ class Server {
 		this.app.get("/table/:tableName", Dev.getTableData);
 		this.app.get("/tables", Dev.getTables);
 
-		this.app.get("/search", Search.get);
+		this.app.get("/search/post", Search.getPosts);
+		this.app.get("/search/user", Search.getUsers);
 	}
 
 	start() {

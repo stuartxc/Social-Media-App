@@ -14,9 +14,10 @@ const CreatePost = () => {
 	const [type, setType] = useState("");
 	const [file, setFile] = useState(null);
 	const [imageUrl, setImageUrl] = useState("");
-	const [advertisement, setAdvertisement] = useState(false);
-	const [errorMessage, setErrorMessage] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
+	const [advertisement, setAdvertisement] = useState(null);
+    const [errorMessage, setErrorMessage] = useState("");
+	const [successMessage, setSuccessMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 	const [hashtags, setHashtags] = useState([]);
 
 	const tryCreate = async () => {
@@ -41,11 +42,12 @@ const CreatePost = () => {
 		return response;
 	};
 
-	const handleSubmit = (e) => {
-		while (isLoading);
-		e.preventDefault();
-		setErrorMessage("");
-		setIsLoading(true);
+    const handleSubmit = (e) => {
+		  while(isLoading);
+      e.preventDefault();
+      setErrorMessage("");
+		  setSuccessMessage("");
+      setIsLoading(true);
 
 		if (!caption || type === null) {
 			setErrorMessage("Caption and type are required");
@@ -64,6 +66,12 @@ const CreatePost = () => {
 			setErrorMessage("Video is required for a video post");
 			setIsLoading(false);
 			return;
+		}
+
+		if (advertisement === null) {
+			setErrorMessage("Please choose whether this post is an advertisement or not.");
+            setIsLoading(false);
+            return;
 		}
 
 		if (!user) {
@@ -172,17 +180,24 @@ const CreatePost = () => {
 				<label for="advertisement">Is this post an advertisement:</label>
 				<select
 					id="advertisement"
+          placeholder="advertisement"
+          className="px-4 py-2 border border-gray-300 rounded-md"
+          value={advertisement == null ? "" : advertisement == true ? "Yes" : "No"}
+          onChange={(e) => {
+						e.target.value === "" ? setAdvertisement(null) : e.target.value === "Yes" ? setAdvertisement(true) : setAdvertisement(false); 
+					}}>
+					<option value="">-- Please select an option --</option>
+					<option value="Yes">Yes</option>
+					<option value="No">No</option>
+				</select>
+				{/* <select 
+					id="advertisement" 
 					value={advertisement}
-					form="createForm"
-					onChange={(e) =>
-						e.target.value === "No" ? setAdvertisement(false) : setAdvertisement(true)
-					}
-				>
-					{" "}
-					<option value="">--Please choose an option--</option>
+					onChange={(e) => e.target.value === "No" ? setAdvertisement(false) : setAdvertisement(true)}
+				> <option value="">--Please choose an option--</option>
 					<option value="no">No</option>
 					<option value="yes">Yes</option>
-				</select>
+				</select> */}
 				<div>
 					{hashtags.map((hashtag, index) => (
 						<Hashtag
