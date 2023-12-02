@@ -257,7 +257,11 @@ INSERT INTO Post(postID, URL, caption, createdBy, timestamp, type) VALUES
 (12, 'http://example12.com', 'This is caption 2', 'user2', '2023-10-10 00:00:00', 2),
 (13, 'http://example13.com', 'This is caption 3', 'user3', '2023-10-10 00:00:00', 2),
 (14, 'http://example14.com', 'This is caption 4', 'user4', '2023-10-10 00:00:00', 2),
-(15, 'http://example15.com', 'This is caption 5', 'user5', '2023-10-10 00:00:00', 2);
+(15, 'http://example15.com', 'This is caption 5', 'user5', '2023-10-10 00:00:00', 2),
+(16, 'http://example1.com', 'This is caption 16', 'user1', '2023-10-10 00:00:00', 0),
+(17, 'http://example1.com', 'This is caption 17', 'user1', '2023-10-10 00:00:00', 0),
+(18, 'http://example1.com', 'This is caption 18', 'user1', '2023-10-10 00:00:00', 0);
+
 
 INSERT INTO Caption(caption, postID, advertisement) VALUES
 ('This is caption 1', 1, TRUE),
@@ -299,7 +303,9 @@ INSERT INTO associateHashtag(postID, hashTag) VALUES
 (2, 'Hashtag2'),
 (3, 'Hashtag3'),
 (4, 'Hashtag4'),
-(5, 'Hashtag5');
+(5, 'Hashtag5'),
+(1, 'Hashtag2'),
+(1, 'Hashtag3');
 
 INSERT INTO Comment(commentPost, commenter, timeStamp, contents) VALUES
 (1, 'user1', '2023-10-10 00:00:00', 'This is a comment 1'),

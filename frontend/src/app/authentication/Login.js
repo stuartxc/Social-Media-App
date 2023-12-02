@@ -17,28 +17,8 @@ const Login = () => {
 	const router = useRouter();
 
 	const { login } = useAuth();
-	const tryLogin = async () => {
-		const response = await fetch(LOGIN_URL, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				username: username,
-				password: password,
-			}),
-		});
 
-		const data = await response.json();
-
-		if (response.ok) {
-			return data;
-		}
-
-		throw new Error(data.message);
-	};
-
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setErrorMessage("");
 		setIsLoading(true);
@@ -50,19 +30,35 @@ const Login = () => {
 		}
 
 		try {
-			const data = tryLogin();
-
-			data.then((result) => {
-				console.log(result.token);
-				login(result.token);
-				setSuccessMessage("Login successful");
-
-				setTimeout(() => {
-					router.push("/");
-				}, 1000);
-			}).catch((err) => {
-				setErrorMessage(err.statusText);
+			const data = fetch(LOGIN_URL, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					username: username,
+					password: password,
+				}),
 			});
+
+			data.then((response) => {
+				if (response.ok) {
+					return response.json();
+				}
+				return Promise.reject(response);
+			})
+				.then((result) => {
+					console.log(result.token);
+					login(result.token);
+					setSuccessMessage("Login successful");
+
+					setTimeout(() => {
+						router.push("/");
+					}, 1000);
+				})
+				.catch((err) => {
+					setErrorMessage(err.statusText);
+				});
 		} catch (error) {
 			setErrorMessage(error.message);
 		} finally {

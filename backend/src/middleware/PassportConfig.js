@@ -6,10 +6,10 @@ module.exports = (passport) => {
 	passport.use(
 		new LocalStrategy(function verify(username, password, done) {
 			const db = DatabaseInstance.getInstance();
-			const query = `SELECT * FROM login WHERE username='${username}'`;
+			const query = `SELECT * FROM login WHERE username=$1`;
 
 			try {
-				db.queryDb(query).then((data) => {
+				db.queryDbValues(query, [username]).then((data) => {
 					if (data.length == 0) {
 						return done(null, false, {
 							message: "No accounts with that username found.",
@@ -41,8 +41,9 @@ module.exports = (passport) => {
 	passport.deserializeUser(async (id, done) => {
 		try {
 			const db = DatabaseInstance.getInstance();
-			const query = `SELECT * FROM login WHERE username='${id}'`;
-			const data = await db.queryDb(query);
+
+			const query = `SELECT * FROM login WHERE username=$1`;
+			const data = await db.queryDbValues(query, [id]);
 			if (data.length == 0) {
 				return done(null, false, {
 					message: "No accounts with that username found.",
