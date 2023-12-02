@@ -39,7 +39,13 @@ const Navbar = () => {
 					<a href="/post" className="hover:text-gray-300">
 						Post
 					</a>
-					<div className="relative">
+					<a href="/search" className="hover:text-gray-300">
+						Search posts
+					</a>
+					<a href="/test" className="hover:text-gray-300">
+						Test queries
+					</a>
+					{/* <div className="relative">
 						<input
 							type="text"
 							placeholder="Search"
@@ -51,7 +57,7 @@ const Navbar = () => {
 							onClick={() => {}}
 							className="absolute right-0 top-0 mt-1 mr-1"
 						></button>
-					</div>
+					</div> */}
 				</div>
 				<div className="flex items-center space-x-4 justify-end">
 					{user ? (

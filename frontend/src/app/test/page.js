@@ -86,7 +86,7 @@ const Test = () => {
                 </div>
 			</div>
 			<div className="border-black border-2 px-2 m-10">
-				Nested Aggregation with GROUP BY, avg number of posts per hashtag
+				Nested Aggregation with GROUP BY, avg number of hashtags per post
 				<button className="border-black border-2 px-2" onClick={nestedAggGroupQuery}>
 					Query
 				</button>
