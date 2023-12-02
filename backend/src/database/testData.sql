@@ -198,7 +198,9 @@ INSERT INTO Account(username, email, URL) VALUES
 ('user2', 'test2@gmail.com', 'http://www.example2.com'),
 ('user3', 'test3@gmail.com', 'http://www.example3.com'),
 ('user4', 'test4@gmail.com', 'http://www.example4.com'),
-('user5', 'test5@gmail.com', 'http://www.example5.com');
+('user5', 'test5@gmail.com', 'http://www.example5.com'),
+('test', 'a', 'a'),
+('test2', 'test2', 'test2');
 
 INSERT INTO Permissions(type, cost) VALUES
 ('normalUser', 0),
@@ -219,14 +221,17 @@ INSERT INTO follow(follower, following) VALUES
 ('user2', 'user3'),
 ('user3', 'user4'),
 ('user4', 'user5'),
-('user5', 'user1');
+('user5', 'user1'),
+('test', 'user1');
 
 INSERT INTO Login(username, password) VALUES
 ('user1', 'pass1'),
 ('user2', 'pass2'),
 ('user3', 'pass3'),
 ('user4', 'pass4'),
-('user5', 'pass5');
+('user5', 'pass5'),
+('test', '$2b$10$O0u7e875hwBfQtVVf/SY5uDy29d2Eqhw9N7BY2wsTZMb91US/LcJO'),
+('test2', '$2b$10$oARNgdqW.2KaMxBoolZUVerhFV54EjEUx.jm0/6MSHsm/Q6kXJ0U2');
 
 INSERT INTO validateUser(accountUser, loginUser) VALUES
 ('user1', 'user1'),
