@@ -27,11 +27,14 @@ class Post {
 			let promises = [];
 			let promises2 = [];
 			await hashtags.forEach((hashtag) => {
-				db.queryDb(`SELECT * FROM Hashtags WHERE text='${hashtag.text}'`).then((res) => {
+				db.queryDbValues(`SELECT * FROM Hashtags WHERE text=$1`, [hashtag.text]).then((res) => {
 					if (res.length == 0) {
 						try {
-							db.queryDb(
-								`INSERT INTO Hashtags (text, color) VALUES ('${hashtag.text}', '${hashtag.color.substring(1)}')`
+							// db.queryDb(
+							// 	`INSERT INTO Hashtags (text, color) VALUES ('${hashtag.text}', '${hashtag.color.substring(1)}')`
+							// );
+							db.queryDbValues(
+								`INSERT INTO Hashtags (text, color) VALUES ($1, $2)`, [hashtag.text, hashtag.color.substring(1)]
 							);
 						} catch {}
 					}
@@ -42,10 +45,12 @@ class Post {
 			console.log(3);
 			await Promise.all(promises2);
 			console.log(4);
+			// const text = `INSERT INTO post (postID, URL, caption, createdBy, timestamp, type) VALUES
+			// 	(${pid}, '${POST_URL}/${pid}', '${caption}', '${username}', to_timestamp(${time} / 1000.0), ${typeInt});`;
 			const text = `INSERT INTO post (postID, URL, caption, createdBy, timestamp, type) VALUES
-				(${pid}, '${POST_URL}/${pid}', '${caption}', '${username}', to_timestamp(${time} / 1000.0), ${typeInt});`;
-
-			const data = await db.queryDb(text);
+				($1, $2, $3, $4, to_timestamp($5 / 1000.0), $6);`;
+			const values = [pid, `${POST_URL}/${pid}`, caption, username, time, typeInt];
+			const data = await db.queryDbValues(text, values);
 			const captionData = await Caption.create(req, res, pid);
 			console.log("Aftercap");
 			switch (typeInt) {
@@ -70,8 +75,11 @@ class Post {
 
 			hashtags.forEach((hashtag) => {
 				promises3.push(
-					db.queryDb(
-						`INSERT INTO associateHashtag (postID, hashtag) VALUES (${pid}, '${hashtag.text}')`
+					// db.queryDb(
+					// 	`INSERT INTO associateHashtag (postID, hashtag) VALUES (${pid}, '${hashtag.text}')`
+					// )
+					db.queryDbValues(
+						`INSERT INTO associateHashtag (postID, hashtag) VALUES ($1, $2)`, [pid, hashtag.text]
 					)
 				);
 			});
@@ -88,15 +96,15 @@ class Post {
 		try {
 			const target = req.params.postId;
 			const { username } = req.user;
-			const dataUser = await db.queryDb(
-				`SELECT username FROM account WHERE username='${username}';`
+			const dataUser = await db.queryDbValues(
+				`SELECT username FROM account WHERE username=$1;`, [username]
 			);
 			if (dataUser.length <= 0) {
 				return res.status(469).send({ message: "Unexpected error: User does not exist" });
 			}
 			const user = dataUser[0]["username"];
-			const checkCreator = await db.queryDb(
-				`SELECT createdBy FROM Post WHERE postID = '${target}';`
+			const checkCreator = await db.queryDbValues(
+				`SELECT createdBy FROM Post WHERE postID = $1;`, [target]
 			);
 			if (checkCreator.length <= 0) {
 				return res.status(404).send({ message: "Post does not exist" });
@@ -106,7 +114,7 @@ class Post {
 				console.error("To delete a post, the user must be the creator of the post.");
 				res.status(403).send("User isn't authorized to delete this post");
 			} else {
-				const data = await db.queryDb(`DELETE FROM Post WHERE postID = '${target}'`);
+				const data = await db.queryDbValues(`DELETE FROM Post WHERE postID = $1`, [target]);
 				res.json(data);
 			}
 		} catch (error) {
@@ -203,12 +211,12 @@ class Post {
 						INNER JOIN 
 							follow ON Post.createdBy = follow.following
 						WHERE 
-							follow.follower = '${user}'
+							follow.follower = $1
 						ORDER BY 
 							Post.timestamp DESC
-						LIMIT ${limit}
-						OFFSET ${offset};`;
-			const data = await db.queryDb(sql);
+						LIMIT $2
+						OFFSET $3;`;
+			const data = await db.queryDbValues(sql, [user, limit, offset]);
 			res.json(data);
 		} catch (error) {
 			console.error(error);

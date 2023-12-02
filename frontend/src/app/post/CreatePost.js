@@ -266,6 +266,7 @@ const CreatePost = () => {
 				</button>
 			</form>
 			{errorMessage && <div className="text-red-500">{errorMessage}</div>}
+			{successMessage && <div className="text-blue-500">{successMessage}</div>}
 		</div>
 	);
 };
