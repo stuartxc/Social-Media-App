@@ -107,7 +107,7 @@ class Server {
 		this.app.post("/post", Authentication.authenticateToken, Post.create);
 		this.app.delete("/post/:postId", Authentication.authenticateToken, Post.delete);
 		this.app.get("/post/:postId", Post.get);
-        this.app.get("/post/feed/:user", Post.getFeed);
+		this.app.get("/post/feed/:user", Post.getFeed);
 
 		this.app.post("/chat", Authentication.authenticateToken, Chat.create);
 		this.app.put("/chat/join/:chatId", Authentication.authenticateToken, Chat.joinChat);
@@ -118,6 +118,8 @@ class Server {
 
 		this.app.post("/chat/message", Authentication.authenticateToken, Chat.createMessage);
 		this.app.put("/chat/message", Authentication.authenticateToken, Chat.editMessage);
+
+		this.app.post("/chat/count", Authentication.authenticateToken, Chat.countChats);
 
 		this.app.get("/followers/:userId", Follow.getFollowers);
 		this.app.get("/following/:userId", Follow.getFollowing);
@@ -133,7 +135,9 @@ class Server {
 		this.app.get("/likes/:postId", Likes.getLikesByPost);
 		this.app.delete("/likes/:postId/:userId", Likes.unLike);
 
-		this.app.get("/table/:tableName", Dev.getTable);
+		this.app.get("/tableColumns/:tableName", Dev.getTableColumns);
+		this.app.get("/table/:tableName", Dev.getTableData);
+		this.app.get("/tables", Dev.getTables);
 
 		this.app.get("/search/post", Search.getPosts);
 		this.app.get("/search/user", Search.getUsers);

@@ -241,8 +241,8 @@ const ChatPage = ({ params }) => {
 	};
 
 	return (
-		<div className="justify-center flex w-100">
-			<div className="w-2/3 max-h-screen bg-white shadow-lg flex flex-col">
+		<div className="justify-center flex w-100 pt-4">
+			<div className="w-2/3 max-h-screen bg-white shadow-lg border rounded flex flex-col">
 				<div className="p-4 border-b border-gray-200 flex items-center justify-between">
 					<button onClick={handleBack} className="hover:text-red-600">
 						←

@@ -125,8 +125,11 @@ CREATE TABLE Hashtags (
 CREATE TABLE associateHashtag (
 	postID INT,
 	hashTag VARCHAR(20),
-	FOREIGN KEY (postID) REFERENCES Post(postID),
+	PRIMARY KEY (postID, hashTag),
+	FOREIGN KEY (postID) REFERENCES Post(postID)
+	ON DELETE CASCADE,
 	FOREIGN KEY (hashTag) REFERENCES Hashtags(text)
+	ON DELETE CASCADE
 );
 
 CREATE TABLE Comment (
