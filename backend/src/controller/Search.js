@@ -28,6 +28,11 @@ class Search {
 				values.push(typeInt);
 				i++;
 			}
+			if (createdBy !== undefined) {
+				query += `createdBy=$${i} AND `;
+				values.push(createdBy);
+				i++;
+			}
 			if (postTime !== undefined) {
 				query += `timestamp=$${i} AND `;
 				values.push(postTime);
