@@ -331,26 +331,25 @@ INSERT INTO likeComment(commentPost, commentTimeStamp, account) VALUES
 (1, '2023-10-10 00:00:03', 'user4'),
 (1, '2023-10-10 00:00:04', 'user5');
 
--- Commented out due to Serial
--- INSERT INTO Chat(chatID) VALUES
--- (-1),
--- (-2),
--- (-3),
--- (-4),
--- (-5);
 
--- INSERT INTO participates(chatID, acc) VALUES
--- (1, 'user1'),
--- (2, 'user2'),
--- (3, 'user3'),
--- (4, 'user4'),
--- (5, 'user5');
+INSERT INTO Chat DEFAULT VALUES;
+INSERT INTO Chat DEFAULT VALUES;
+INSERT INTO Chat DEFAULT VALUES;
+INSERT INTO Chat DEFAULT VALUES;
+INSERT INTO Chat DEFAULT VALUES;
 
--- INSERT INTO Message(chatID, account, timeAndDate) VALUES
--- (1, 'user1', '2023-10-10 00:00:00'),
--- (2, 'user2', '2023-10-10 00:00:01'),
--- (3, 'user3', '2023-10-10 00:00:02'),
--- (4, 'user4', '2023-10-10 00:00:03'),
--- (5, 'user5', '2023-10-10 00:00:04');
+INSERT INTO participates(chatID, acc) VALUES
+(1, 'user1'),
+(2, 'user2'),
+(3, 'user3'),
+(4, 'user4'),
+(5, 'user5');
+
+INSERT INTO Message(chatID, account, timeAndDate) VALUES
+(1, 'user1', '2023-10-10 00:00:00'),
+(2, 'user2', '2023-10-10 00:00:01'),
+(3, 'user3', '2023-10-10 00:00:02'),
+(4, 'user4', '2023-10-10 00:00:03'),
+(5, 'user5', '2023-10-10 00:00:04');
 
 
