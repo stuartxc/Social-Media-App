@@ -5,8 +5,9 @@ class VideoPost {
     static async create(req, res, pid) {
 		const { caption, type, file, advertisement } = req.body;
 		try {
-			const text = `INSERT INTO VideoPost(postID, content) VALUES(${pid}, '${file}');`;
-			const data = await db.queryDb(text)
+			const text = `INSERT INTO VideoPost(postID, content) VALUES($1, $2);`;
+			const values = [pid, file]
+			const data = await db.queryDbValues(text, values);
 			// res.json(data);
 		  } catch (error) {
 			console.error(error)
