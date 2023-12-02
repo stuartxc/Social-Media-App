@@ -140,9 +140,11 @@ const DevPage = () => {
 							{tableData.map((row, index) => (
 								<tr key={index} className="bg-white border-b ">
 									{selectedColumns.map((column) => {
+										// console.log(column, row[column]);
 										return (
 											<td key={column} className="py-4 px-6">
-												{row[column]}
+												{row[column] != undefined &&
+													new String(row[column])}
 											</td>
 										);
 									})}
