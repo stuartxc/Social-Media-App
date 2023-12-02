@@ -10,7 +10,7 @@ const Search = () => {
     const [caption, setCaption] = useState("");
     const [createdBy, setCreatedBy] = useState("");
     const [type, setType] = useState("");
-    const [advertisement, setAdvertisement] = useState("");
+    const [advertisement, setAdvertisement] = useState(null);
     const [postTime, setPostTime] = useState("");
     const [username, setUsername] = useState("");
     const [accountTime, setAccountTime] = useState("");
@@ -20,35 +20,51 @@ const Search = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    const trySearch = async () => {
+    const trySearchPost = async () => {
 		// const body = {
 		// 				postId: postId, caption: caption, createdBy: createdBy, type: type, advertisement: advertisement,
 		// 				postTime: postTime, username: username, accountTime: accountTime, following: following, followers: followers
 		// 			}
 
-        const response =  await fetch(`http://localhost:3000/search/postId=${postId}caption=${caption}createdBy=${createdBy}
-										type=${type}advertisement=${advertisement}postTime=${postTime}username=${username}
-										accountTime=${accountTime}following=${following}followers=${followers}`, {
+		var searchUrl = `${SEARCH_URL}/post?`
+		if (postId != "") {
+			searchUrl += `postId=${postId}&`
+		} if (caption != "") {
+			searchUrl += `caption=${caption}&`
+		} if (createdBy != "") {
+			searchUrl += `createdBy=${createdBy}&`
+		} if (type != "") {
+			searchUrl += `type=${type}&`
+		} if (advertisement !== null) {
+			searchUrl += `advertisement=${advertisement}&`
+		} if (postTime != "") {
+			searchUrl += `postTime=${postTime}`
+		}
+
+		console.log(searchUrl);
+					
+        const response =  await fetch(searchUrl, {
 			method: "get",
 			cache: "no-store",
 		});
 
-        const data = await response.json();
-
-        if (response.ok) {
-            return data;
-        }
-
-        throw new Error(data.message);
+        return response;
     };
 
     const handleSubmit = (e) => {
+		console.log("submit");
         e.preventDefault();
         setErrorMessage("");
 		setSuccessMessage("");
         setIsLoading(true);
 
-		const data = trySearch();
+		if (postId == "" && caption == "" && createdBy == "" && type == "" && advertisement == "" && postTime == "") {
+			setErrorMessage("Please enter an input for at least one field.");
+            setIsLoading(false);
+            return;
+		}
+
+		const data = trySearchPost();
 		data.then((response) => {
 			if (response.ok) {
 				return response.json();
@@ -60,83 +76,72 @@ const Search = () => {
 		})
 		.catch((error) => {
 			console.log(error);
-			setErrorMessage(error.statusText);
+			handleErrors(error.statusText);
 		});
 		setIsLoading(false);
     };
 
+	const handleErrors = (errorText) => {
+		if (errorText == "Not Found") {
+			setErrorMessage("No such posts exist.");
+		} else {
+			setErrorMessage(errorText);
+		}
+	}
+
     return (
-        <div className="mx-auto max-w-md p-6">
+		<div id="bigDiv">
+		
+        <div className="mx-auto max-w-md p-6"> Search for posts:
+			<br/>
+			<br/>
             <form className="flex flex-col space-y-4">
+				<label for="postId">Post ID:</label>
                 <input
                     type="text"
-                    placeholder="postId"
+					id="postId"
+                    placeholder="1"
                     className="px-4 py-2 border border-gray-300 rounded-md"
                     value={postId}
                     onChange={(e) => setPostId(e.target.value)}
                 />
+				<label for="caption">Post caption</label>
                 <input
                     type="text"
-                    placeholder="caption"
+					id="caption"
+                    placeholder="This is caption 1"
                     className="px-4 py-2 border border-gray-300 rounded-md"
                     value={caption}
                     onChange={(e) => setCaption(e.target.value)}
                 />
+				<label for="creator">Post creator:</label>
 				<input
                     type="text"
-                    placeholder="createdBy"
+					id="createdBy"
+                    placeholder="user1"
                     className="px-4 py-2 border border-gray-300 rounded-md"
                     value={createdBy}
                     onChange={(e) => setCreatedBy(e.target.value)}
                 />
+				<label for="type">Post type (0 = Text, 1 = Image, or 2 = Video)</label>
 				<input
-                    type="text"
-                    placeholder="type"
+                    type="number"
+					id="type"
+					min={0}
+					max={2}
+                    placeholder="0"
                     className="px-4 py-2 border border-gray-300 rounded-md"
                     value={type}
                     onChange={(e) => setType(e.target.value)}
                 />
+				<label for="postTime">Time created (Format: YYYY-MM-DD HH:MM:SS:ms)</label>
 				<input
                     type="text"
-                    placeholder="advertisement"
-                    className="px-4 py-2 border border-gray-300 rounded-md"
-                    value={advertisement}
-                    onChange={(e) => setAdvertisement(e.target.value)}
-                />
-				<input
-                    type="text"
-                    placeholder="postTime"
+					id="postTime"
+                    placeholder="2023-10-10 00:00:00.000"
                     className="px-4 py-2 border border-gray-300 rounded-md"
                     value={postTime}
                     onChange={(e) => setPostTime(e.target.value)}
-                />
-				<input
-                    type="text"
-                    placeholder="username"
-                    className="px-4 py-2 border border-gray-300 rounded-md"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                />
-				<input
-                    type="text"
-                    placeholder="accountTime"
-                    className="px-4 py-2 border border-gray-300 rounded-md"
-                    value={accountTime}
-                    onChange={(e) => setAccountTime(e.target.value)}
-                />
-				<input
-                    type="text"
-                    placeholder="following"
-                    className="px-4 py-2 border border-gray-300 rounded-md"
-                    value={following}
-                    onChange={(e) => setFollowing(e.target.value)}
-                />
-				<input
-                    type="text"
-                    placeholder="followers"
-                    className="px-4 py-2 border border-gray-300 rounded-md"
-                    value={followers}
-                    onChange={(e) => setFollowers(e.target.value)}
                 />
                 <button
                     type="submit"
@@ -147,7 +152,39 @@ const Search = () => {
                 </button>
             </form>
             {errorMessage && <div className="text-red-500">{errorMessage}</div>}
+			{successMessage && <div className="text-blue-500">{successMessage}</div>}
         </div>
+		{/* <div className="mx-auto max-w-md p-6"> UNIMPLEMENTED USER SEARCH AREA
+		<input
+			type="text"
+			placeholder="username"
+			className="px-4 py-2 border border-gray-300 rounded-md"
+			value={username}
+			onChange={(e) => setUsername(e.target.value)}
+		/>
+		<input
+			type="text"
+			placeholder="accountTime"
+			className="px-4 py-2 border border-gray-300 rounded-md"
+			value={accountTime}
+			onChange={(e) => setAccountTime(e.target.value)}
+		/>
+		<input
+			type="text"
+			placeholder="following"
+			className="px-4 py-2 border border-gray-300 rounded-md"
+			value={following}
+			onChange={(e) => setFollowing(e.target.value)}
+		/>
+		<input
+			type="text"
+			placeholder="followers"
+			className="px-4 py-2 border border-gray-300 rounded-md"
+			value={followers}
+			onChange={(e) => setFollowers(e.target.value)}
+		/>
+		</div> */}
+		</div>
     );
 };
 
