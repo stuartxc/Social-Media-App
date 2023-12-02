@@ -2,6 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import PostBody from "../posts/PostBody";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+// const BACKEND_URL = "http://localhost:3000";
+const POST_URL = `${BACKEND_URL}/post`;
 const HomePage = () => {
 	const { user } = useAuth();
 	if (user) {
@@ -23,7 +26,7 @@ const HomePage = () => {
 
 	const fetchPosts = () => {
 		// setLoading(true);
-		fetch(`http://localhost:3000/post/feed/${user.username}?page=${page}&limit=${limit}`, {
+		fetch(`${POST_URL}/feed/${user.username}?page=${page}&limit=${limit}`, {
 			method: "get",
 			cache: "no-store",
 		})

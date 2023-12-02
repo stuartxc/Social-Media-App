@@ -6,8 +6,8 @@ const VideoPost = require("./VideoPost.js");
 const DatabaseInstance = require("../database/Database");
 const db = DatabaseInstance.getInstance();
 var format = require("pg-format");
-
-const POST_URL = "http://localhost:3000/post";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+const POST_URL = `${BACKEND_URL}/post`;
 
 class Post {
 	static async create(req, res) {

@@ -4,7 +4,7 @@ import CenteredBox from "@/components/form/CenteredBox";
 
 export default () => {
     return (
-        <CenteredBox title="Register">
+        <CenteredBox title="Search">
             <Search />
         </CenteredBox>
     );
