@@ -8,9 +8,9 @@ class Chat {
 			const data = await db.queryDb(createChat);
 			const chatId = data[0].chatid;
 
-			const joinChat = `INSERT INTO participates (chatId, acc) VALUES ('${chatId}', '${username}');`;
-			await db.queryDb(joinChat);
-			console.log(username, chatId);
+			const joinChat = `INSERT INTO participates (chatId, acc) VALUES ($1, $2);`;
+			await db.queryDbValues(joinChat, [chatId, username]);
+
 			res.status(200).json({ chatId: chatId });
 		} catch (error) {
 			console.error(error);
@@ -20,13 +20,18 @@ class Chat {
 	static async getAllChats(req, res) {
 		try {
 			const { username } = req.user;
+
+			// no need to sanitize this, already checked in auth
 			const getChats = `SELECT * FROM chat WHERE chatId IN (SELECT chatId FROM participates WHERE acc='${username}');`;
 			const chats = await db.queryDb(getChats);
 
 			const results = await Promise.all(
 				chats.map(async (chat) => {
-					const getParticipants = `SELECT acc FROM participates p, chat c WHERE c.chatId=${chat.chatid} AND p.chatId=${chat.chatid};`;
-					const participants = await db.queryDb(getParticipants);
+					const getParticipants = `SELECT acc FROM participates p, chat c WHERE c.chatId=$1 AND p.chatId=$2;`;
+					const participants = await db.queryDbValues(getParticipants, [
+						chat.chatid,
+						chat.chatid,
+					]);
 					return {
 						chatid: chat.chatid,
 						participants: participants,
@@ -46,8 +51,8 @@ class Chat {
 			const doesParticipate = await Chat.isInChat(username, chatId);
 
 			if (doesParticipate) {
-				const deleteChat = `DELETE FROM chat WHERE chatId = '${chatId}';`;
-				await db.queryDb(deleteChat);
+				const deleteChat = `DELETE FROM chat WHERE chatId = $1;`;
+				await db.queryDbValues(deleteChat, [chatId]);
 				res.status(200).json({ message: "Deleted chat" });
 			} else {
 				res.status(400).json({ message: "Cannot delete chat (unauthorized)." });
@@ -61,8 +66,9 @@ class Chat {
 			const { chatId } = req.params;
 
 			// get all messages sorted on the timestamp, newest first
-			const getMessages = `SELECT * FROM message WHERE chatId=${chatId} ORDER BY timeAndDate ASC;`;
-			const messages = await db.queryDb(getMessages);
+
+			const getMessages = `SELECT * FROM message WHERE chatId=$1 ORDER BY timeAndDate ASC;`;
+			const messages = await db.queryDbValues(getMessages, [chatId]);
 			res.status(200).json(messages);
 		} catch (error) {
 			console.error(error);
@@ -84,8 +90,8 @@ class Chat {
 			if (doesParticipate) {
 				return res.status(400).json({ message: "Already in chat" });
 			} else {
-				const insertParticipates = `INSERT INTO participates (chatId, acc) VALUES ('${chatId}', '${username}');`;
-				await db.queryDb(insertParticipates);
+				const insertParticipates = `INSERT INTO participates (chatId, acc) VALUES ($1, $2);`;
+				await db.queryDbValues(insertParticipates, [chatId, username]);
 				res.status(200).json({ message: "joined chat" });
 			}
 		} catch (error) {
@@ -95,8 +101,8 @@ class Chat {
 
 	static async doesChatExist(chatId) {
 		try {
-			const doesChatExist = `SELECT * FROM chat WHERE chatId=${chatId};`;
-			const rows = await db.queryDb(doesChatExist);
+			const doesChatExist = `SELECT * FROM chat WHERE chatId=$1;`;
+			const rows = await db.queryDbValues(doesChatExist, [chatId]);
 			const doesExist = rows.length > 0;
 			return doesExist;
 		} catch (error) {
@@ -111,8 +117,8 @@ class Chat {
 			const doesParticipate = await Chat.isInChat(username, chatId);
 
 			if (doesParticipate) {
-				const deleteParticipates = `DELETE FROM participates WHERE chatId = ${chatId} AND acc = '${username}';`;
-				await db.queryDb(deleteParticipates);
+				const deleteParticipates = `DELETE FROM participates WHERE chatId = $1 AND acc = $2;`;
+				await db.queryDbValues(deleteParticipates, [chatId, username]);
 				res.status(200).json({ message: "left chat" });
 			} else {
 				res.status(400).json({ message: "Already not in chat." });
@@ -127,8 +133,13 @@ class Chat {
 			const { username } = req.user;
 			const { chatId, message } = req.body;
 			const timeNow = Date.now();
-			const createMessage = `INSERT INTO message (chatId, account, timeAndDate, contents) VALUES ('${chatId}', '${username}', TO_TIMESTAMP(${timeNow} / 1000.0),'${message}') RETURNING timeAndDate;`;
-			const data = await db.queryDb(createMessage);
+			const createMessage = `INSERT INTO message (chatId, account, timeAndDate, contents) VALUES ($1, $2, TO_TIMESTAMP($3 / 1000.0), $4) RETURNING timeAndDate;`;
+			const data = await db.queryDbValues(createMessage, [
+				chatId,
+				username,
+				timeNow,
+				message,
+			]);
 			res.status(200).json({ timeanddate: data[0].timeanddate });
 		} catch (error) {
 			console.error(error);
@@ -141,11 +152,17 @@ class Chat {
 			const { chatId, message } = req.body;
 			const { account, contents, timeanddate, directedto } = message;
 			console.log(chatId, account, contents, timeanddate, directedto);
-			const directedToStr = directedto == null ? "NULL" : `'${directedto}'`;
+			const directedToStr = directedto == null ? null : `${directedto}`;
 			// const doesItExist = `SELECT * FROM message WHERE chatId=${chatId} AND account='${account}' and timeAndDate='${timeanddate}'::timestamptz;`;
 			// const rows = await db.queryDb(doesItExist);
-			const editMessage = `UPDATE message SET contents='${contents}', directedto=${directedToStr} WHERE chatId=${chatId} AND account='${account}' and timeAndDate='${timeanddate}'::timestamptz;`;
-			const data = await db.queryDb(editMessage);
+			const editMessage = `UPDATE message SET contents=$1, directedto=$2 WHERE chatId=$3 AND account=$4 and timeAndDate=$5::timestamptz;`;
+			const data = await db.queryDbValues(editMessage, [
+				contents,
+				directedToStr,
+				chatId,
+				account,
+				timeanddate,
+			]);
 			res.status(200).json({ message: "Edited Message" });
 		} catch (error) {
 			console.error(error);
@@ -164,12 +181,12 @@ class Chat {
 				FROM chat c, participates p
 				WHERE c.chatId = p.chatId
 				AND c.chatId IN (
-					SELECT chatId FROM participates WHERE acc='${countText}'
+					SELECT chatId FROM participates WHERE acc=$1
 				)
 				GROUP BY p.acc
-				HAVING p.acc='${username}';`;
+				HAVING p.acc=$2;`;
 
-				const chats = await db.queryDb(getChats);
+				const chats = await db.queryDbValues(getChats, [countText, username]);
 				res.status(200).json(chats);
 			} else {
 				res.status(400).json({ message: "Invalid filter option" });
@@ -215,8 +232,8 @@ class Chat {
 	// }
 
 	static async isInChat(username, chatId) {
-		const participatesInChat = `SELECT * FROM participates WHERE acc='${username}' AND chatId=${chatId};`;
-		const rows = await db.queryDb(participatesInChat);
+		const participatesInChat = `SELECT * FROM participates WHERE acc=$1 AND chatId=$2;`;
+		const rows = await db.queryDbValues(participatesInChat, [username, chatId]);
 		const doesParticipate = rows.length > 0;
 		return doesParticipate;
 	}
